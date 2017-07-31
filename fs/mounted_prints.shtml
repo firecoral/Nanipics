@@ -1,0 +1,157 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Incredible Offers, Holiday Cards, Greeting Cards, Canvas Wraps, Mounted Photo Prints | NaniPics</title>
+<meta name="description" content="Professional quality Holiday Cards, Greeting Cards, Canvas Wraps, and Mounted Photo Prints." /> 
+<meta name="keywords" content="holiday cards, christmas cards, greeting cards, christmas greeting cards, holiday card, christmas card, xmas card, greet card, new year's cards, photo cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics" />
+
+<link type="image/x-icon" href="/favicon.ico" rel="shortcut icon">
+<link rel="apple-touch-icon-precomposed" sizes="114×114" href="/icons/apple-touch-icon-114x114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72×72" href="/icons/apple-touch-icon-72×72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="/icons/touch-icon-iphone-precomposed.png">
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/fs/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/fs/css/lp.css" />
+<link type="text/css" href="/fs/css/superfish.css" media="screen" rel="stylesheet">
+
+
+<script type="text/javascript" src="<!--#echo var="jquery" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_ui" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_json" -->"></script>
+<script type="text/javascript" src="/js/jquery.cycle.all.latest.js"></script>
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  $('button').button();  
+  $('ul.sf-menu').superfish();
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+
+<body>
+
+<!--#include virtual="/i/tracking.html" --> 
+
+<div id="header"><div class="header-c">
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  <a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a>-->&nbsp;</div>
+<div id="logo"><a href="/" ><img src="/fs/i/logo.jpg"></a></div>
+<!--#include file="menu.shtml" --> 
+</div><!--END header-c--></div><!--END header-->
+
+
+<div id="container">     
+<div class="clear"></div>
+
+<div class="fb_container"> 
+
+<div class="sm_special_offers">
+	<form action="https://madmimi.com/signups/subscribe/90059" id="mad_mimi_signup_form" method="post" target="_blank">
+    <img src="/fs/i/line-1.jpg" align="absmiddle" width="190px">
+	GET SPECIAL OFFERS&nbsp;&nbsp;
+	<input class="required" data-invalid-message="This field is invalid" data-required-message="This field is required" id="signup_email" name="signup[email]" placeholder="Enter Your Email" type="text"/>&nbsp;&nbsp;
+	<span style="font-size: 0.7em;"><input class="submit" data-default-text="Sign up!" data-invalid-text="&#8593; You forgot some required fields" data-submitting-text="Sending..." id="webform_submit_button" name="commit" type="submit" value="Sign up!"/></span>
+	<img src="/fs/i/line-1.jpg" align="absmiddle" width="190px">
+    </form>
+</div><!--END special_offers-->
+
+    <div class="intro_txt">
+    Mounted Prints are great ways to display your favorite photo moments. The mounted prints come in variety of sizes and are all ready to hang right out 
+    of the box. We are offering limited time promotions, so please take advantage of it and help us share the news.
+    </div><!--END intro_txt-->
+    
+    
+    <div class="mp_msg">
+    
+    <div class="mp_box_container">
+
+    	<a href="/e/nts?ntp_id=1">    	
+        <div class="mp_canvas">
+        	<div class="mp_h3">Canvas Gallery Prints</div>
+            <img src="/fs/i/mp_canvas.jpg" />
+        </div><!--END mp_canvas-->
+    	</a>
+                
+    	<a href="/e/nts?ntp_id=6">
+        <div class="mp_box">
+        	<div class="mp_h2">Bamboo Mounted Prints</div>
+            <img src="http://www.nanipics.com/a/BINhCUPWbGAKtk3F.jpg" width="270" />
+        </div>
+        </a>
+        
+        <a href="/e/nts?ntp_id=5">
+        <div class="mp_box">
+        	<div class="mp_h2">Metal Mounted Prints</div>
+            <img src="http://www.nanipics.com/a/MQWop2lOjPZzlC6G.jpg" width="270" />
+        </div>
+        </a>
+        
+        <a href="/e/nts?ntp_id=2">
+        <div class="mp_box">
+        	<div class="mp_h2">Standout Mounted Prints</div>
+            <img src="http://www.nanipics.com/a/ep7mRTzim0U2XElX.jpg" width="270" />
+        </div>
+        </a>
+        
+        <a href="/e/pi?pi_pgid=23">
+        <div class="mp_box">
+        	<div class="mp_h2">Wall Decal Prints</div>
+            <img src="http://www.nanipics.com/a/gT7vhRGHuj7Ka48d.jpg" width="270" />
+        </div>
+        </a>
+        <!--
+        <div class="wd_txt">If you would like to display the photos without mounting or frames, the 
+        repositionable adhesive fabric <a href="http://www.nanipics.com/e/pi?pi_pgid=23">Wall Decal Prints</a> 
+        will stick to virtually any surface.
+		</div><!--END wd_txt-->
+
+    </div><!--END mp_box_container-->
+
+    
+    </div><!--END mp_msg-->
+</div><!--END fb_container-->
+<br />
+
+<div align="center">    
+<h1><strong>Sign up for future product announcements and special offers.</strong></h1>
+</div>
+
+<div class="subscribe_container">	
+<form action="https://madmimi.com/signups/subscribe/90059" id="mad_mimi_signup_form" method="post" target="_blank">
+<input class="required" data-invalid-message="This field is invalid" data-required-message="This field is required" id="signup_email" name="signup[email]" placeholder="Enter Your Email" type="text" style="font-size: 1.3em; height: 25px; width: 375px;" />&nbsp;&nbsp;
+<input class="submit" data-default-text="Sign up!" data-invalid-text="&#8593; You forgot some required fields" data-submitting-text="Sending..." id="webform_submit_button" name="commit" type="submit" value="Sign up!" style="font-size: 1.3em;" /><br />
+<small><i>*We will only use your e-mail to inform you of new products and incredible deals.</i></small>
+</form>
+</div><!-- END subscribe_container-->
+
+</div><!--END container-->
+<br /><br /><br /><br /><br /><br />
+
+<!--#include file="subscribe_footer.shtml" --> 
+
+<script type="text/javascript">
+var fb_param = {};
+fb_param.pixel_id = '6009848069823';
+fb_param.value = '0.00';
+fb_param.currency = 'USD';
+(function(){
+  var fpw = document.createElement('script');
+  fpw.async = true;
+  fpw.src = '//connect.facebook.net/en_US/fp.js';
+  var ref = document.getElementsByTagName('script')[0];
+  ref.parentNode.insertBefore(fpw, ref);
+})();
+</script>
+<noscript><img height="1" width="1" alt="" style="display:none" src="https://www.facebook.com/offsite_event.php?id=6009848069823&amp;value=0&amp;currency=USD" /></noscript>
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

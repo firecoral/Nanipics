@@ -1,0 +1,98 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Incredible Offers, Holiday Cards, Greeting Cards, Canvas Wraps, Mounted Photo Prints | NaniPics</title>
+<meta name="description" content="Professional quality Holiday Cards, Greeting Cards, Canvas Wraps, and Mounted Photo Prints." /> 
+<meta name="keywords" content="holiday cards, christmas cards, greeting cards, christmas greeting cards, holiday card, christmas card, xmas card, greet card, new year's cards, photo cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics" />
+
+<link type="image/x-icon" href="/favicon.ico" rel="shortcut icon">
+<link rel="apple-touch-icon-precomposed" sizes="114×114" href="/icons/apple-touch-icon-114x114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72×72" href="/icons/apple-touch-icon-72×72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="/icons/touch-icon-iphone-precomposed.png">
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/fs/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/fs/css/splash.css" />
+<link type="text/css" href="/fs/css/superfish.css" media="screen" rel="stylesheet">
+
+
+<script type="text/javascript" src="<!--#echo var="jquery" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_ui" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_json" -->"></script>
+<script type="text/javascript" src="/js/jquery.cycle.all.latest.js"></script>
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  $('button').button();  
+  $('ul.sf-menu').superfish();
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+
+<body>
+
+<!--#include virtual="/i/tracking.html" --> 
+
+<div id="header"><div class="header-c">
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  <a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a>--></div>
+<div id="logo"><a href="/" ><img src="/fs/i/logo.jpg"></a></div>
+<!--#include file="menu.shtml" --> 
+</div><!--END header-c--></div><!--END header-->
+
+
+<div id="container">    
+<div class="clear"></div>
+<br /><br />
+
+<div align="center">
+<strong><big>Privacy Policy</big></strong><br /><br />
+</div>
+
+NaniPics has created this privacy statement to demonstrate our firm commitment to privacy and the protection of your information. The following 
+explains the ways information will be gathered and the choices you can make about these practices. <br /><br />
+ 
+<strong>Order Placement:</strong>
+On some of our Web pages you may order products. The types of information collected at these pages are name, address, contact and billing 
+information, email address and credit card information. This information is used for completion of your order. Order information is also 
+made available to the lab that produces the products. <br /><br />
+ 
+The NaniPics Web site uses &quot;cookies&quot;. Cookies are small files written on your computer that help us with your order. NaniPics 
+uses the information to help complete a transaction or to communicate back to you. The cookie is automatically removed when your order 
+is placed. For orders that are not completed the cookie is keep for two weeks allowing you to finish your order. Otherwise the cookie 
+is removed. Credit card numbers are used for payment processing only and are not retained for other purposes.<br /><br />
+ 
+<strong>Public Forums, Postings, Communications:</strong>
+We may, but are not obligated to, monitor or review any areas on the NaniPics site where users post communications or images, or transmit 
+or communicate solely with each other, including but not limited to chat rooms, bulletin boards, or other user forums, and the content of 
+any such communications. Any information disclosed in these areas becomes public information and you should exercise caution when 
+deciding to disclose your personal information.<br /><br />
+ 
+<strong>Security:</strong>
+The NaniPics site has security measures in place to protect the loss, misuse and alteration of the information under our control. All 
+purchases are handled via a secure server to protect credit card information. You will notice a closed lock on any pages dealing with 
+payment information.<br /><br />
+ 
+<strong>Choice/Opt-Out</strong>.
+We provide users the opportunity to opt-out of receiving communications from NaniPics via an unsubscribe mechanism in all e-mail 
+communications.<br /><br />
+ 
+<strong>Questions or Comments</strong>.
+If you have any questions about this privacy policy, the practices of this site, or your dealings with the Web site, you can contact 
+NaniPics via e-mail at <a href="mailto:XXXXX@XXXXX.com">XXXXX@XXXXX.com </a>
+
+</div><!--END container-->
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+
+<!--#include file="subscribe_footer.shtml" --> 
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

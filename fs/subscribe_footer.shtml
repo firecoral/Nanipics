@@ -1,0 +1,68 @@
+<div id="subscribe">
+	<div class="subscribe_content">
+	Sign up for new product announcements, special offers, and updates.
+	<div class="subscribe_box">
+    <form action="https://madmimi.com/signups/subscribe/90059" id="mad_mimi_signup_form" method="post" target="_blank">
+	<input class="required" data-invalid-message="This field is invalid" data-required-message="This field is required" id="signup_email" name="signup[email]" placeholder="Enter Your Email" type="text"/>&nbsp;&nbsp;
+	<input class="submit" data-default-text="Sign up!" data-invalid-text="&#8593; You forgot some required fields" data-submitting-text="Sending..." id="webform_submit_button" name="commit" type="submit" value="Sign up!"/>
+    </form>
+	</div><!--END subscribe_box-->
+    </div><!--END subscribe_content-->
+</div><!--END subscribe-->
+
+<div id="footer">
+<div class="footer-c">
+
+    <div class="f_col">
+    <h2><a href="/e/nts?ntp_id=8">Prints</a></h2>
+    <a href="/e/pi?pi_pgid=28">Lustre Prints</a><br /><br />
+
+    <h2><a href="/e/nts?ntp_id=9">Cards</a></h2>
+    <a href="/e/nts?ntp_id=17"> Baby Cards</a><br />    
+    <a href="/e/nts?ntp_id=16">Holiday Cards</a><br /><br />
+    </div><!--END f_col-->
+
+        
+    <div class="f_col">
+    <h2><a href="/e/nts?ntp_id=11">Home Decor</a></h2>
+    <a href="/e/nts?ntp_id=1">Canvas</a><br />
+    <a href="/e/nts?ntp_id=2">Standout Mounted Prints</a><br />
+    <a href="/e/nts?ntp_id=5">Metal Mounted Prints</a><br />
+    <a href="/e/nts?ntp_id=6">Bamboo Mounted Prints</a><br />
+    <a href="/e/pi?pi_pgid=23">Wall Decal</a><br />
+    </div><!--END f_col-->
+
+
+    <div class="f_col">
+	<h2><a href="/e/nts?ntp_id=12">Photo Gifts</a></h2>
+    <a href="/e/nts?ntp_id=12">Photo Coasters</a><br />
+    </div><!--END f_col-->
+    
+
+    <div class="f_col">
+    <h2>About NaniPics</h2>
+    <a href="/fs/about_nanipics.shtml">About Us</a><br />
+    <!--<a href="/fs/customer_service.shtml">Customer Service</a><br />-->
+    <a href="/e/order_status">Order Status</a><br />
+    <a href="/fs/satisfaction_guarantee.shtml">Satisfaction Guarantee</a><br />
+    <a href="/fs/privacy_policy.shtml">Privacy Policy</a>
+    </div><!--END f_col-->
+
+
+	<div class="r_col">
+    <h2>Follow Us On</h2>
+    <a href="http://www.facebook.com/my.nanipics" target="new">Facebook</a><br />
+    Twitter<br />
+    Instagram<br />
+    <a href="https://plus.google.com/+Nanipics/">Google+</a><br />
+    
+    </div><!--END r_col-->
+</div><!--END footer-c-->
+<div class="clear"></div>
+
+<br /><br />
+<div align="center">
+&copy; 2013 NaniPics, Inc  |  NaniPics  |  <a href="/fs/terms_of_use.shtml"><strong>Terms of Use</strong></a> Designated trademarks and brands are the property of their respective owners.
+</div>
+
+</div><!--END footer-->

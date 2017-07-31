@@ -1,0 +1,87 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Incredible Offers, Holiday Cards, Greeting Cards, Canvas Wraps, Mounted Photo Prints | NaniPics</title>
+<meta name="description" content="Professional quality Holiday Cards, Greeting Cards, Canvas Wraps, and Mounted Photo Prints." /> 
+<meta name="keywords" content="holiday cards, christmas cards, greeting cards, christmas greeting cards, holiday card, christmas card, xmas card, greet card, new year's cards, photo cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics" />
+
+<link type="image/x-icon" href="/favicon.ico" rel="shortcut icon">
+<link rel="apple-touch-icon-precomposed" sizes="114×114" href="/icons/apple-touch-icon-114x114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72×72" href="/icons/apple-touch-icon-72×72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="/icons/touch-icon-iphone-precomposed.png">
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/fs/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/fs/css/splash.css" />
+<link type="text/css" href="/fs/css/superfish.css" media="screen" rel="stylesheet">
+
+
+<script type="text/javascript" src="<!--#echo var="jquery" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_ui" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_json" -->"></script>
+<script type="text/javascript" src="/js/jquery.cycle.all.latest.js"></script>
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  $('button').button();  
+  $('ul.sf-menu').superfish();
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+
+<body>
+
+<!--#include virtual="/i/tracking.html" --> 
+
+<div id="header"><div class="header-c">
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  <a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a>--></div>
+<div id="logo"><a href="/" ><img src="/fs/i/logo.jpg"></a></div>
+<!--#include file="menu.shtml" --> 
+</div><!--END header-c--></div><!--END header-->
+
+
+<div id="container">    
+<div class="clear"></div>
+<br /><br />
+
+<div align="center">
+<strong><big>Satisfaction Guarantee</big></strong><br /><br />
+</div>
+
+NaniPics is proud of the quality of our products and services. If the product you received is defective or arrives damaged for any reason, 
+contact us within thirty days of purchase and it will be replaced at no charge, or we will refund your money. 
+<br /><br />
+ 
+Even though we strive for the highest quality standards, there are some issues that are out of our control. 
+	<ol type="a">
+    	<li>Errors in spelling, punctuation or other text entered by the customer. Please review all entered text carefully 
+        before placing your order. The web site enables customers to personalize products as desired, all items in the order 
+        will be produced exactly (As-Is) as personalized by the customer.<br /><br /></li>
+        
+        <li>Poor image quality when a low resolution image is uploaded for use on a product. Our technicians do not 
+        evaluate uploaded image quality. Please make sure to preview the image quality and position before ordering. 
+        The web site enables customers to reposition images as desired, all items will be produced exactly (As-Is) as 
+        personalized by the customer.<br /><br /></li>
+        
+        <li>To Get a Replacement/Refund:  Just send an email to <a href="mailto:XXXXX@XXXXX.com">XXXXX@XXXXX.com</a> include your order number and a brief 
+        explanation of the problem; within thirty days of the purchase. One of our service representatives will contact you 
+        and arrange for replacement or refund. We may ask you to return the product and will provide a shipping address at 
+        that time.<br /><br /></li>
+    </ol>
+
+</div><!--END container-->
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+
+<!--#include file="subscribe_footer.shtml" --> 
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

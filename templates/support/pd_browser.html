@@ -1,0 +1,91 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/pd_browser.html#5 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Product Info ProductDesign Groups</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/date.format.js"></script>
+
+{% raw %}
+<script id="dg_tmpl" type="text/x-jsrender">
+  <h3>{{:ecom_name}} ({{:support_name}})</h3>
+  <div>
+    {{for product_designs }}
+      {{:product_design_id}}) {{:product_name}} : {{:ecom_name}} ({{:support_name}})<br />
+    {{/for}}
+  </div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+$.views.converters({
+  currency: function(value) {
+    return "$ " + value.toFixed(2);
+  },
+  datetime: function(date8601) {
+    // Probably won't work on old browsers:  see https://github.com/csnover/js-iso8601/
+    if (!date8601)
+      return "";
+    date = new Date(date8601)
+    return date.toDateString();
+  }
+});
+
+var pi_design_groups = {{ pi_design_groups }};
+var pi_product_groups = {{ pi_product_groups }};
+
+$(document).ready( function() {
+  $("#done").button();
+
+  $.each(pi_design_groups, function (i, pi_design_group) {
+    $("#accordion").append($('#dg_tmpl').render(pi_design_group));
+  });
+  $.each(pi_product_groups, function (i, pi_product_group) {
+    $("#accordion2").append($('#dg_tmpl').render(pi_product_group));
+  });
+  $("#accordion").accordion();
+  $("#accordion2").accordion();
+  $(window).unload(function() {});
+});
+
+
+</script>
+</head>
+<body>
+
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content">
+
+<div class="content-header">
+  <div class="content-header-h1">Product Info - Design Hierarchy</div>
+  <div class="content-header-btn"><input type="button" class='crop_menu_btn' id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+<div id="accordion"></div>
+
+<div class="content-header">
+  <div class="content-header-h1">Product Info - Product Hierarchy</div>
+</div>
+<div id="accordion2"></div>
+
+
+</div><!--end content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

@@ -1,0 +1,43 @@
+/* $Header: //depot/cs/data/css/fileupload.css#2 $ */
+.file-uploader {
+    display: none;
+    width: 450px;
+}
+.file-wrapper {
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+}
+.upbutton {
+    overflow: hidden;
+    position: static;
+}
+.file-wrapper {
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+}
+.fileupload {
+    cursor: pointer;
+    height: 110%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 24px;
+    filter: alpha(opacity=1);
+    -moz-opacity: 0.01;
+    opacity: 0.01;
+}
+
+.file-uploader-list {
+    width: 380px;
+}
+
+.file-uploader .ui-progressbar {
+    font-size: 0.5em;
+    width: 100px;
+}
+
+.ui-progressbar-value { background-image: url(/_img/pbar-ani.gif); }

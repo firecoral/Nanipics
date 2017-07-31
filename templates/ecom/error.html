@@ -1,0 +1,38 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/ecom/error.html#8 $ --->
+<head>
+
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas Printed By Your own Pro Team at NaniPics. " /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link rel=stylesheet type="text/css" href="/css/style.css">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+<body>
+{% include '/i/tracking.html' ignore missing %}
+
+<div>
+Error
+<br />
+<br />
+{{ message }}
+</div>
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

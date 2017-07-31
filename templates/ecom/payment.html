@@ -1,0 +1,839 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/ecom/payment.html#38 $ --->
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas Printed By Your own Pro Team at NaniPics. " /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link rel=stylesheet type="text/css" href="/css/style.css">
+<link rel=stylesheet type="text/css" href="/css/cart.css">
+<link rel=stylesheet type="text/css" href="/css/product_build.css">
+
+<style>
+.confirm_highlight { background-color: #fdb5b5;}
+</style>
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/date.format.js"></script>
+
+{% raw %}
+
+<script id="dollar_tmpl" type="text/x-jsrender">
+  {{currency:total_cost}}
+</script>
+
+<script id="state_options_tmpl" type="text/x-jsrender">
+  <option value="{{>state_id}}">{{>name}}</option>
+</script>
+
+<script id="shipping_tmpl" type="text/x-jsrender">
+  <div class="ship_l">
+    <input type="radio" id="shipping-{{>shipping_id}}" name="shipping_id" data-shipping_id="{{>shipping_id}}" {{>selected}}/>
+  </div>
+  <div class"ship_r">
+    <label for="shipping-{{>shipping_id}}">
+      <strong><span class="shipping_cost_str" data-shipping_id="{{>shipping_id}}"> -- </span> - {{>name}}
+        {{if trackable == 'y'}}
+          (trackable)
+        {{else}}
+          (non-trackable)
+        {{/if}}
+      </strong>
+    </label>
+
+    <br />
+    <small><i>{{>instructions}}</i></small>
+  </div>
+  <div class="clear"></div>
+</script>
+
+<script id="summary_tmpl" type="text/x-jsrender">
+  <div class="sum_l">Subtotal</div>
+  <div class="sum_r">{{>prod_cost.toFixed(2)}}</div>
+
+  {{if prod_credit != 0}}
+    <div class="sum_l">Promo Credit</div>
+    <div class="sum_r">{{>prod_credit.toFixed(2)}}</div>
+  {{/if}}
+
+  <div class="sum_l">Shipping </div>
+  <div class="sum_r">{{>shipping_cost.toFixed(2)}}</div>
+
+  {{if shipping_credit != 0}}
+    <div class="sum_l">&nbsp;&nbsp;Shipping Credit</div>
+    <div class="sum_r">{{>shipping_credit.toFixed(2)}}</div>
+  {{/if}}
+
+  {{if discount_cost != 0}}
+    <div class="sum_l discount">Discount</div>
+    <div class="sum_r discount">{{>discount_cost.toFixed(2)}}</div>
+  {{/if}}
+
+  <div class="sum_l">Tax</div>
+  <div class="sum_r">{{>tax_cost.toFixed(2)}}</div>
+
+  <div class="sum_l">Total</div>
+  <div class="sum_r">{{>total_cost.toFixed(2)}}</div>
+
+</script>
+
+{% endraw %}
+
+<script type="text/javascript">
+
+function _email_vfy(email) {
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
+
+function validate() {
+  $('.confirm_warning').removeClass("confirm_highlight");
+
+  var email1 = $('#email').val();
+  var email2 = $('#email2').val();
+
+  if (!email1) {
+    $('#email').closest('.confirm_warning').addClass("confirm_highlight");
+    jAlert("Please provide your email address");
+    return false;
+  }
+
+  if (email1 != email2) {
+    $('#email').closest('.confirm_warning').addClass("confirm_highlight");
+    $('#email2').closest('.confirm_warning').addClass("confirm_highlight");
+    jAlert("Your email addresses don't match.  Please check them.");
+    return false;
+  }
+  if (!_email_vfy($("#email").val())) {
+    $('#email').closest('.confirm_warning').addClass("confirm_highlight");
+    $('#email2').closest('.confirm_warning').addClass("confirm_highlight");
+    jAlert("Your email address is not valid.  Please check it.");
+    return false;
+    return;
+  }
+
+  var incomplete = false;
+  $('.ship_required').each(function() {
+    var val = $(this).val();
+    if (!val) {
+      incomplete = true;
+      $(this).closest('.confirm_warning').addClass("confirm_highlight");
+    }
+  })
+  if (incomplete) {
+    jAlert("Your shipping address is missing some information.  Please check it.");
+    return false;
+  }
+
+  var incomplete = false;
+  $('.bill_required').each(function() {
+    var val = $(this).val();
+    if (!val) {
+      incomplete = true;
+      $(this).closest('.confirm_warning').addClass("confirm_highlight");
+    }
+  })
+  if (incomplete) {
+    jAlert("Your billing address is missing some information.  Please check it.");
+    return false;
+  }
+
+  if (cart.finance.total_cost == 0)
+    return true;
+
+{% if cc_available %}
+  if ($('#cc_key').val())
+    {# Skip CC checking #}
+    return true;
+{% endif %}
+
+  var cc = $('#card_num').val();
+  var exp_month = $('#exp_month').val();
+  var exp_year = $('#exp_year').val();
+  var ccv = $('#ccv').val();
+  
+  if (!cc) {
+    $('#card_num').closest('.confirm_warning').addClass("confirm_highlight");
+    jAlert("Please enter a credit card number");
+    return false;
+  }
+  ccv = parseInt(ccv);
+  if (exp_month == 12) {
+    exp_month = 0;
+    exp_year++;
+  }
+  exp_date = new Date(exp_year, exp_month);
+  var now = new Date();
+  if (now.getTime() > exp_date.getTime()) {
+    $('#exp_month').closest('.confirm_warning').addClass("confirm_highlight");
+    jAlert("Your credit card appears to have expired.  Please update the expiration date");
+    return false;
+  }
+
+  if (isNaN(ccv) || ccv < 1 || ccv > 99999) {
+    $('#ccv').closest('.confirm_warning').addClass("confirm_highlight");
+    jAlert("Please provide the Security Code (ccv) on your credit card.");
+    return false;
+  }
+
+  var nondigits = new RegExp(/[^0-9]+/g);
+  var number = cc.replace(nondigits,'');
+  var pos, digit, i, sub_total, sum = 0;
+  var strlen = number.length;
+  if (strlen >= 13) {
+    for (i = 0; i < strlen; i++) {
+      pos = strlen - i;
+      digit = parseInt(number.substring(pos - 1, pos));
+      if (i % 2 == 1) {
+        sub_total = digit * 2;
+        if (sub_total > 9) {
+          sub_total = 1 + (sub_total - 10);
+        }
+      }
+      else {
+        sub_total = digit;
+      }
+      sum += sub_total;
+    }
+    if (sum > 0 && sum % 10 == 0){
+      return true;
+    }
+  }
+  $('#card_num').closest('.confirm_warning').addClass("confirm_highlight");
+  jAlert("Your credit card number appears to be invalid.  Please double-check the number you entered.");
+  return false;
+}
+
+$.views.converters({
+  currency: function(value) {
+    if (value == null)
+      return (" -- ");
+    return "$ " + value.toFixed(2);
+  },
+  datetime: function(date8601) {
+    // Probably won't work on old browsers:  see https://github.com/csnover/js-iso8601/
+    date = new Date(date8601)
+    return date.format();
+  }
+});
+
+var cart = {};
+var states = {{ states }};
+
+$(document).ready(function() {
+  $(".state_list").after($("#state_options_tmpl").render(states));
+
+  $(".nav").button();
+  $("#copy_shipping").button();
+
+  $(document).on('click', '#sec_code', function() {
+    $("#dialog-sec_code").dialog("open");
+    return false;
+  })
+  $(document).on('click', '.submit_order', function() {
+    if (validate()) {
+      DPAjax(
+	"/e/ajax_cart",
+	{
+	  command: 'order_submit',
+	  address: {
+	    email: $('#email').val(),
+            specials: $('#specials').is(':checked'),
+	    bill_first_name: $('#bill_first_name').val(),
+	    bill_last_name: $('#bill_last_name').val(),
+	    bill_address1: $('#bill_address1').val(),
+	    bill_address2: $('#bill_address2').val(),
+	    bill_state_id: $('#bill_state_id').val(),
+	    bill_city: $('#bill_city').val(),
+	    bill_postal_code: $('#bill_postal_code').val(),
+	    bill_phone: $('#bill_phone').val(),
+	    ship_first_name: $('#ship_first_name').val(),
+	    ship_last_name: $('#ship_last_name').val(),
+	    ship_address1: $('#ship_address1').val(),
+	    ship_address2: $('#ship_address2').val(),
+	    ship_state_id: $('#ship_state_id').val(),
+	    ship_city: $('#ship_city').val(),
+	    ship_postal_code: $('#ship_postal_code').val(),
+	    ship_phone: $('#ship_phone').val()
+	  },
+{% if cc_available %}
+          cc_key: $('#cc_key').val(),
+{% endif %}
+	  cc: {
+	    card_num: $('#card_num').val(),
+	    exp_month: $('#exp_month').val(),
+	    exp_year: $('#exp_year').val(),
+	    ccv: $('#ccv').val()
+	  }
+	},
+	function (data) {
+	  if (data.Complete) {
+	    jAlert("Your order has already been submitted", "Order Submitted", function() {
+	      var url = "https://{{ SERVER_NAME }}/e/order_complete";
+	      window.location.replace(url);
+	    });
+            return;
+	  }
+	  if (data.InvalidPromo) {
+            cart.finance = data.finance;
+            redraw_totals();
+            redraw_shipping_prices();
+	    jError(data.InvalidPromo);
+            return;
+          }
+	  if (data.Error) {
+	    jError(data.Error);
+          }
+	  else {
+            var url = "https://{{ SERVER_NAME }}/e/order_complete";
+            window.location.replace(url);
+          }
+	},
+	function (data) {
+	  if (data.Error)
+	    jError(data.Error);
+	  else
+	    jError("Network Issue");
+	}
+      );
+    }
+    return false;
+  })
+  $(document).on('click', '#copy_shipping', function() {
+    copy_shipping();
+    return false;
+  })
+  $(document).on('change', '#ship_state_id', function() {
+    DPAjax(
+      "/e/ajax_cart",
+      {
+	command: 'ship_state_update',
+	state_id: $('#ship_state_id').val()
+      },
+      function (data) {
+	if (data.Complete) {
+	  jAlert("Your order has already been submitted", "Order Submitted", function() {
+	    var url = "https://{{ SERVER_NAME }}/e/order_complete";
+	    window.location.replace(url);
+	  });
+	}
+	cart.finance = data.finance;
+	redraw_totals();
+	redraw_shipping_prices();
+      },
+      function (data) {
+	if (data.Error)
+	  jError(data.Error);
+	else
+	  jError("Network Issue");
+      }
+    );
+
+    return false;
+  })
+  $(document).on('change', 'input:radio[name=shipping_id]', function() {
+    DPAjax(
+      "/e/ajax_cart",
+      {
+	command: 'shipping_update',
+	shipping_id: $(this).data('shipping_id')
+      },
+      function (data) {
+	if (data.Complete) {
+	  jAlert("Your order has already been submitted", "Order Submitted", function() {
+	    var url = "https://{{ SERVER_NAME }}/e/order_complete";
+	    window.location.replace(url);
+	  });
+	}
+	cart.finance = data.finance;
+	redraw_totals();
+      },
+      function (data) {
+	if (data.Error)
+	  jError(data.Error);
+	else
+	  jError("Network Issue");
+      }
+    );
+  })
+
+{% if support_name %}
+  $(document).on('click', '.discount_update', function() {
+    var max_discount = cart.finance.prod_cost + cart.finance.shipping_cost;
+    var query = "Discount value (max: " + $.views.converters.currency(max_discount) + ")";
+    jPrompt(query, -cart.finance.discount_cost.toFixed(2), "Update Discount", function(discount) {
+      if (discount != null) {
+        discount = parseFloat(discount).toFixed(2);
+        if (-discount > max_discount) {
+          jError("discount " + discount + " exceeds maximum " + max_discount.toFixed(2));
+          return false;
+        }
+        if (discount < 0) {
+          jError("negative discounts are not permitted");
+          return false;
+        }
+        DPAjax(
+          "/e/ajax_cart",
+          {
+            command: 'discount_update',
+            discount: discount
+          },
+          function (data) {
+            if (data.Complete) {
+              jAlert("Your order has already been submitted", "Order Submitted", function() {
+                var url = "https://{{ SERVER_NAME }}/e/order_complete";
+                window.location.replace(url);
+              });
+            }
+            cart.finance = data.finance;
+            redraw_totals();
+          },
+          function (data) {
+            if (data.Error)
+              jError(data.Error);
+            else
+              jError("Network Issue");
+          }
+        );
+      }
+    });
+    return false;
+  });
+{% endif %}
+
+  $(document).on('click', '.modify_order', function() {
+    document.location.href = "http://{{ SERVER_NAME }}/e/shopping_cart";
+  })
+  $("#dialog-sec_code").dialog({
+    autoOpen: false,
+    height: 'auto',
+    width: 'auto',
+    modal: true,
+    buttons: {
+      Close: function() {
+        $(this).dialog("close");
+      }
+    }
+  });
+
+  var year = new Date().getFullYear();
+  var options = "";
+  for (i = year; i < year + 10; i++) {
+    options += "<option>" + i;
+  }
+  $("#exp_year").html(options);
+
+  DPAjax(
+    "/e/ajax_cart",
+    { command: 'get' },
+    function (data) {
+      if (data.Complete) {
+	jAlert("Your order has already been submitted", "Order Submitted", function() {
+	  var url = "https://{{ SERVER_NAME }}/e/order_complete";
+	  window.location.replace(url);
+	});
+      }
+      cart = data.cart;
+      $('.order_no').html(cart.cart_id);
+      $('#shipping_options').html($('#shipping_tmpl').render(cart.shipping));
+      redraw_totals();
+      redraw_address();
+      redraw_shipping_prices();
+      if (data.invalid_promo_message)
+        jAlert(data.invalid_promo_message)
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        jError("Network Issue");
+    }
+  );
+  $(window).unload(function() {});
+});
+
+function redraw_totals() {
+  if (!cart.hasOwnProperty('finance'))
+    return;
+  var finance = cart.finance;
+  $('.summary_x').html($('#summary_tmpl').render(cart.finance));
+
+{% if not support_name %}
+  if (finance.hasOwnProperty('discount_cost') && finance.discount_cost < 0.0) {
+    $('.discount').show();
+  }
+  else {
+    $('.discount').hide();
+  }
+{% endif %}
+
+  if (finance.hasOwnProperty('total_cost')) {
+    if (finance.total_cost > 0) {
+      $('#p_payinfo').show();
+    }
+    else {
+      $('#p_payinfo').hide();
+    }
+  }
+}
+
+function redraw_address() {
+  if (!cart.hasOwnProperty('address'))
+    return;
+  var address = cart.address;
+  if (address.hasOwnProperty('email') && address.email) {
+    $('#email').val(address.email);
+    $('#email2').val(address.email);
+  }
+  if (address.hasOwnProperty('ship_first_name'))
+    $('#ship_first_name').val(address.ship_first_name);
+  if (address.hasOwnProperty('ship_last_name'))
+    $('#ship_last_name').val(address.ship_last_name);
+  if (address.hasOwnProperty('ship_address1'))
+    $('#ship_address1').val(address.ship_address1);
+  if (address.hasOwnProperty('ship_address2'))
+    $('#ship_address2').val(address.ship_address2);
+  if (address.hasOwnProperty('ship_state_id'))
+    $('#ship_state_id').val(address.ship_state_id);
+  if (address.hasOwnProperty('ship_city'))
+    $('#ship_city').val(address.ship_city);
+  if (address.hasOwnProperty('ship_postal_code'))
+    $('#ship_postal_code').val(address.ship_postal_code);
+  if (address.hasOwnProperty('ship_phone'))
+    $('#ship_phone').val(address.ship_phone);
+  if (address.hasOwnProperty('bill_first_name'))
+    $('#bill_first_name').val(address.bill_first_name);
+  if (address.hasOwnProperty('bill_last_name'))
+    $('#bill_last_name').val(address.bill_last_name);
+  if (address.hasOwnProperty('bill_address1'))
+    $('#bill_address1').val(address.bill_address1);
+  if (address.hasOwnProperty('bill_address2'))
+    $('#bill_address2').val(address.bill_address2);
+  if (address.hasOwnProperty('bill_state_id'))
+    $('#bill_state_id').val(address.bill_state_id);
+  if (address.hasOwnProperty('bill_city'))
+    $('#bill_city').val(address.bill_city);
+  if (address.hasOwnProperty('bill_postal_code'))
+    $('#bill_postal_code').val(address.bill_postal_code);
+  if (address.hasOwnProperty('bill_phone'))
+    $('#bill_phone').val(address.ship_phone);
+}
+
+function copy_shipping() {
+  $('#bill_first_name').val($('#ship_first_name').val());
+  $('#bill_last_name').val($('#ship_last_name').val());
+  $('#bill_address1').val($('#ship_address1').val());
+  $('#bill_address2').val($('#ship_address2').val());
+  $('#bill_state_id').val($('#ship_state_id').val());
+  $('#bill_city').val($('#ship_city').val());
+  $('#bill_postal_code').val($('#ship_postal_code').val());
+  $('#bill_phone').val($('#ship_phone').val());
+
+  DPAjax(
+    "/e/ajax_cart",
+    {
+      command: 'address_update',
+      address: {
+	email: $('#email').val(),
+        specials: $('#specials').is(':checked'),
+	bill_first_name: $('#bill_first_name').val(),
+	bill_last_name: $('#bill_last_name').val(),
+	bill_address1: $('#bill_address1').val(),
+	bill_address2: $('#bill_address2').val(),
+	bill_state_id: $('#bill_state_id').val(),
+	bill_city: $('#bill_city').val(),
+	bill_postal_code: $('#bill_postal_code').val(),
+	bill_phone: $('#bill_phone').val(),
+	ship_first_name: $('#ship_first_name').val(),
+	ship_last_name: $('#ship_last_name').val(),
+	ship_address1: $('#ship_address1').val(),
+	ship_address2: $('#ship_address2').val(),
+	ship_state_id: $('#ship_state_id').val(),
+	ship_city: $('#ship_city').val(),
+	ship_postal_code: $('#ship_postal_code').val(),
+	ship_phone: $('#ship_phone').val()
+      }
+    },
+    function (data) {
+      if (data.Complete) {
+	jAlert("Your order has already been submitted", "Order Submitted", function() {
+	  var url = "https://{{ SERVER_NAME }}/e/order_complete";
+	  window.location.replace(url);
+	});
+      }
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        jError("Network Issue");
+    }
+  );
+}
+
+function redraw_shipping_prices() {
+  if ((!cart.hasOwnProperty('finance')) || (!cart.finance.hasOwnProperty('shipping_costs'))) {
+    $("shipping_warning").show();
+    $('.shipping_cost_str').html(" -- ");
+    return;
+  }
+  var shipping_costs = cart.finance.shipping_costs;
+  $('.shipping_cost_str').each(function() {
+    $("shipping_warning").hide();
+    var shipping_id = $(this).data('shipping_id');
+    if (shipping_costs.hasOwnProperty(shipping_id))
+      $(this).html("$ " + shipping_costs[shipping_id].toFixed(2));
+    else
+      $(this).html(" -- ");
+  });
+}
+
+</script>
+</head>
+
+
+<body>
+{% include '/i/tracking.html' ignore missing %}
+<div id="header-pb"><div class="header-c">
+  <div id="logo-pb"><img src="/i/logo-pb.jpg"></div>
+  <div class="prod_title"></div><!--END prod_title-->
+</div><!--END header-c-->
+</div><!--END header-pb-->
+
+<div id="container">     
+
+<form id="cart_purchase" name="cart_purchase" method="POST">
+
+<div id="p_email">
+	
+    <div class="p_h1">E-Mail Address</div><br />
+  
+		<div class="em_l">Enter E-mail Address:</div>
+    	<div class="em_r"><input type="text" name="email" id="email" size="25" class="big confirm_warning"></div>
+    	<div class="em_ast"><span class="ast">&#42;</span></div>
+	    
+		<div class="em_l">Confirm E-mail Address:</div>
+    	<div class="em_r"><input type="text" name="email2" id="email2" size="25" class="big confirm_warning"></div>
+    	<div class="em_ast"><span class="ast">&#42;</span></div>
+
+	<div class="clear"></div>
+
+    
+    <div align="center">
+    <input type="checkbox" id="specials" checked> <small>I would like to be posted on NaniPics products and specials.</small>
+	</div>
+    
+</div><!--END p_email-->
+
+
+<div id="p_summary">
+  <div class="p_sum_container">
+    <div align="center">
+      <span class="sum_h1">Cart Summary</span><br />
+      <div class="sum_line"></div>
+      <i>Order Number: <span class="order_no">--</span></i>
+    </div><br />
+    <div class="summary_x"></div>
+  </div><!--END p_sum_container-->
+</div><!--END p_summary-->
+
+<div class="clear"></div>
+<div class="p_line"></div>
+
+<div id="p_ship_bill">
+	
+    <div id="p_ship">
+		<div class="p_h1">Shipping Address</div>
+        <br />
+		
+			<div class="sb_l">First Name:</div>
+        	<div class="sb_r"><input type="text" id="ship_first_name" class="big ship_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+		
+        <div class="clear"></div>
+		
+			<div class="sb_l">Last Name:</div>
+        	<div class="sb_r"><input type="text" id="ship_last_name" class="big ship_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+		
+			<div class="sb_l">Address line 1:</div>
+      		<div class="sb_r"><input type="text" id="ship_address1" class="big ship_required confirm_warning" size="25" placeholder="Street Address"></div>
+      		<div class="sb_ast"><span class="ast">&#42;</span></div>
+		
+			<div class="sb_l">Address line 2:</div>
+            <div class="sb_r"><input type="text" id="ship_address2" size="25" class="big" placeholder="Box#, Apt#, Building, etc."></div>
+
+			<div class="sb_l">City:</div> 
+        	<div class="sb_r"><input type="text" id="ship_city" class="big ship_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+	
+			<div class="sb_l">State:</div>
+			<div class="sb_r"><select id="ship_state_id" class="big ship_required confirm_warning">
+  			<option class="big state_list" value="" selected>Choose State</option>
+			</select></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+	
+			<div class="sb_l">Zip Code:</div>
+        	<div class="sb_r"><input type="text" id="ship_postal_code" class="big ship_required confirm_warning" size="25"></div>
+	    
+			<div class="sb_l">Phone Number:</div>
+       		<div class="sb_r"><input type="text" id="ship_phone" class="big ship_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+		
+    </div><!--END p_ship-->
+    
+    <div id="p_bill">
+		<div class="p_h1" style="float: left;">Billing Address<button id="copy_shipping" style="float: right; font-size: 0.5em; margin-left: 35px;">Use Shipping Address</button></div>
+        
+        <div class="clear"></div>
+        <br />
+
+			<div class="sb_l">First Name:</div> 
+        	<div class="sb_r"><input type="text" id="bill_first_name" class="big bill_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+		
+			<div class="sb_l">Last Name:</div>
+        	<div class="sb_r"><input type="text" id="bill_last_name" class="big bill_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+	
+			<div class="sb_l">Address line 1:</div> 
+        	<div class="sb_r"><input type="text" id="bill_address1" class="big bill_required confirm_warning" size="25" placeholder="Street Address"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+	
+			<div class="sb_l">Address line 2:</div> 
+        	<div class="sb_r"><input type="text" id="bill_address2" size="25" class="big" placeholder="Box#, Apt#, Building, etc."></div>
+	
+			<div class="sb_l">City:</div>
+        	<div class="sb_r"><input type="text" id="bill_city" class="big bill_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+	
+			<div class="sb_l">State:</div> 
+            <div class="sb_r"><select id="bill_state_id" class="big bill_required confirm_warning">   
+			<option class="big state_list" value="" selected>Choose State</option>
+			</select></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+	
+			<div class="sb_l">Zip Code:</div>
+       	 	<div class="sb_r"><input type="text" id="bill_postal_code" class="big bill_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+	
+			<div class="sb_l">Phone Number:</div>
+        	<div class="sb_r"><input type="text" id="bill_phone" class="big bill_required confirm_warning" size="25"></div>
+        	<div class="sb_ast"><span class="ast">&#42;</span></div>
+		 
+    </div><!--END p_bill-->
+
+</div><!--END p_ship_bill-->
+
+<div class="clear"></div>
+<div class="p_line"></div>
+
+
+<div id="p_del">
+	<div id="p_opt">
+		<div class="p_h1">Delivery Options:</div><br />
+		<div id="shipping_warning">
+			<div id="shipping_options">
+			You must select a shipping state to see the shipping options.
+			</div>
+		</div>    
+    </div><!--END p_opt-->
+    
+    <div id="p_notes">
+    <strong>Please Note:</strong><br />
+	
+    <ul>
+	    <li>Please add 3 business days for order processing in addition to the shipping
+		delivery time.</li>
+	
+    	<li>Allow extra time during holidays or if you place your order on the weekend.</li>
+	
+	    <li>Second Day and Overnight shipping can not be used for P.O. Boxes,
+		APO/FPO and those areas serviced by the US Post Office as territories such as
+		Guam and the U.S. Virgin Islands.</li>
+	</ul>
+    
+    </div><!--END p_notes-->
+</div><!--END p_del-->
+
+<div class="clear"></div>
+<div class="p_line"></div>
+
+
+<div id="p_payment">
+  <div id="p_payinfo">
+    <div class="p_h1">Payment Information</div><br />
+
+{% if cc_available %}
+    <div class="p_l">Existing CC (password):</div>
+    <div class="p_r"><input type="password" name="cc_key" id="cc_key" size="25" autocomplete="off"></div></br>
+{% endif %}
+
+    <div align="center">
+      <img src="/i/visa.jpg" class="cc">
+      <img src="/i/mc.jpg" class="cc">
+      <img src="/i/ae.jpg" class="cc" style="border: 1px solid #666;">
+      <img src="/i/discover.jpg" style="border: 1px solid #666;">
+    </div><br />
+    <div class="p_l">Card Number:</div>
+    <div class="p_r"><input type="Text" name="card_num" id="card_num" size="25" autocomplete="off" class="big confirm_warning"></div>
+    <div class="p_ast"><span class="ast">&#42;</span></div>
+    <div class="p_l">Card Expiration:</div>
+    <div style="float: left;">
+      <select id="exp_month" name="exp_month" class="big confirm_warning">
+        <option>01<option>02<option>03<option>04<option>05<option>06
+        <option>07<option>08<option>09<option>10<option>11<option>12
+      </select>
+      <select id="exp_year" name="exp_year" class="big"></select>
+    </div>
+    <div class="p_ast"><span class="ast">&#42;</span></div>
+    <div class="clear"></div>
+    <div class="p_l">Security Code:</div>
+    <div style="float: left;"><input type="Text" id="ccv" name="ccv" size="3" autocomplete="off" class="big confirm_warning"></div>
+    <div class="p_ast"><span class="ast">&#42;</span></div>
+    <div><span class="clickable sec_code" id="sec_code"><small>(What's This?)</span></small></div><br />
+  </div><!--END p_payinfo-->
+    
+  <div id="p_checkout">
+    <div class="p_sum_container">
+      <div align="center">
+        <span class="sum_h1">Cart Summary</span><br />
+        <div class="sum_line"></div>
+        <i>Order Number: <span class="order_no">--</span></i>
+      </div><br />
+      <div class="summary_x"></div>
+  </div><!--END p_sum_container-->
+  <br />
+  <div align="center">
+    <input type="button" class="submit_order nav" value="Check Out Using Our Secure Server"/><br /> 
+    <input type="button" class="modify_order nav" value="Modify Your Order" style="font-size: 0.7em; margin-top: 15px;" />  
+{% if support_name %}
+  <br /><small><span class="clickable small discount discount_update">update discount</span></small>
+{% endif %}
+
+  </div>
+</div><!--END p_checkout-->
+
+</div><!--END p_payment-->
+
+<div class="clear"></div>
+
+
+<div id="dialog-sec_code" title="Security Code" style="display: none;">
+  <img src="/i/security_code.gif">
+</div>
+<br /><br /><br /><br />
+</div><!--END container-->
+
+
+{% include '/i/minimal_footer2.html' ignore missing %}
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

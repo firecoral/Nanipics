@@ -1,0 +1,358 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Create and Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas!" /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/css/card_selector.css" />
+<link type="text/css" href="/css/superfish.css" media="screen" rel="stylesheet">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/jstorage.min.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+{% raw %}
+
+<script id="page_nums_tmpl" type="text/x-jsrender">
+{{if page_num != null}}
+  {{if is_current}}
+<div class="cs_page_num cs_page_num_cur" data-page_num="{{:page_num}}">{{:text}}</div>
+  {{else}}
+<div class="cs_page_num cs_page_num_notcur" data-page_num="{{:page_num}}">{{:text}}</div>
+  {{/if}}
+{{else}}
+<div class="cs_page_num_txt">{{:text}}</div>
+{{/if}}
+</script>
+
+<script id="product_design_tmpl" type="text/x-jsrender">
+<a href="/e/pi?pd_id={{:pd_id}}">
+  <div class="cs_pd">
+    <div class="cs_pd_img">{{if icon}}<img src="/a/{{:icon}}">{{/if}}</div>
+    {{:design_name }}<br />
+	<!--product_design_id: {{:pd_id}}<br />-->
+	<strong>{{:prod_name}}</strong><br />
+    From {{price:price}}
+  </div>
+</a>
+</script>
+
+<script id="sort_tmpl" type="text/x-jsrender">
+<div class="cs_sort">
+  <div class="cs_sort_sub"><img src="/i/sort_arrow.jpg">{{:name}}</div>
+  <div class="cs_sort_opt">
+{{for traits}}
+    <input type="checkbox" class="cs_trait" data-group_i="{{:#parent.parent.data.i}}" value="{{:attr}}" {{if ~trait_on(attr)}}checked="checked"{{/if}}/>{{if image}} <img src="{{:image}}"> {{/if}} {{:name}} <span class="cs_sort_num">({{:num_pds}})</span><br />
+{{/for}}
+  </div><!--END cs_sort_opt-->
+</div><!--END sort-->
+</script>
+
+{% endraw %}
+
+<script type="text/javascript">
+
+$.views.converters({
+  currency: function(value) {
+    return "$ " + value.toFixed(2);
+  },
+  price: function(price) {
+    if (price.sale_price > 0) {
+      return "<span class='sale1'>$ " + price.price.toFixed(2) + "</span>" +
+	     "&nbsp;&nbsp;&nbsp;<span class='sale2'>$ " + price.sale_price.toFixed(2) + "</span>";
+    }
+    else {
+      return "$ " + price.price.toFixed(2);
+    }
+  }
+});
+
+var csg = {{ cs_group }};
+var pds_per_page = 60;
+
+var pages;
+var cur_page;   // 0-based
+var num_shown_pds;
+
+$(document).ready(function() {
+  var cs_state = $.jStorage.get(csg.csgi_key);
+  if (cs_state == undefined) {
+    cs_state = {
+      first_pd: 0,
+      page_mode: 'paging',
+      traits: {}
+    };
+    $.jStorage.set(csg.csgi_key, cs_state);
+  }
+
+  $.each(csg.trait_groups, function(i, trait_group) {
+    if (trait_group.traits.length > 0) {
+      trait_group.i = i;
+      $('#cs_sort').append($('#sort_tmpl').render(trait_group, {trait_on: function(attr) { return attr in cs_state.traits; }}));
+      if (trait_group.traits.length == 1) {
+	$('.cs_sort').filter(':last').hide();
+      }
+    }
+  });
+
+  paginate(csg.pds, cs_state.first_pd, cs_state.page_mode);
+  draw(csg.pds, cs_state.page_mode, csg.name);
+
+  $(document).on('change', '.cs_trait', function(e) {
+    paginate(csg.pds, cs_state.first_pd, cs_state.page_mode);
+    draw(csg.pds, cs_state.page_mode, csg.name);
+
+    var trait = $(this).attr('value');
+    if ($(this).prop('checked')) cs_state.traits[trait] = true;
+    else delete cs_state.traits[trait];
+    $.jStorage.set(csg.csgi_key, cs_state);
+  });
+  $(document).on('click', '.cs_page_mode', function() {
+    if (cs_state.page_mode == 'paging') cs_state.page_mode = 'view all';
+    else cs_state.page_mode = 'paging';
+    paginate(csg.pds, cs_state.first_pd, cs_state.page_mode);
+    draw(csg.pds, cs_state.page_mode, csg.name);
+    $.jStorage.set(csg.csgi_key, cs_state);
+  });
+  $(document).on('click', '.cs_page_num', function() {
+    cur_page = $(this).data('page_num');
+    cs_state.first_pd = pages[cur_page][0];
+    draw(csg.pds, cs_state.page_mode, csg.name);
+    $.jStorage.set(csg.csgi_key, cs_state);
+  });
+
+  $(window).unload(function() {});
+});
+
+function paginate(pds, first_pd, page_mode) {
+  var page_vals = pageify_pds(pds, pds_per_page, first_pd, page_mode);
+  pages = page_vals.pages;
+  cur_page = page_vals.cur_page;
+  num_shown_pds = page_vals.num_shown_pds;
+}
+
+function draw(pds, page_mode, csg_name) {
+  $('#cs_des_head_text').html(csg_name);
+  $('.cs_des_desc').html('Browsing '+num_shown_pds+' card'+(num_shown_pds == 1 ? '' : 's'));
+  draw_page_nums(pages, cur_page);
+
+  if (page_mode == 'paging') {
+    $('.cs_page_mode').html('| &nbsp;&nbsp;View All');
+    $('.cs_page_nums').show();
+  }
+  else {
+    $('.cs_page_mode').html('&nbsp;&nbsp;View by Pages');
+    $('.cs_page_nums').hide();
+  }
+
+  render_pds(pds, pages[cur_page]);
+}
+
+function render_pds(pds, page) {
+  var r_pds = [];
+  if (page != null) {
+    for (var i = 0; i < page.length; i++) {
+      r_pds.push(pds[page[i]]);
+    }
+  }
+  $('#cs_pds').html($('#product_design_tmpl').render(r_pds));
+}
+
+function pageify_pds(pds, pds_per_page, first_pd, page_mode) {
+  var sel_traits = {};
+  var cur_group_i, cur_sel_traits, honor_checked_only;
+  $('.cs_trait').each(function() {
+    var group_i = $(this).data('group_i');   // all traits in same block have same group_i
+    if (cur_group_i == null || group_i != cur_group_i) {
+      if (cur_sel_traits != null) $.extend(sel_traits, cur_sel_traits);
+      cur_group_i = group_i;
+      cur_sel_traits = {};
+      // Starting a new group; start off assuming that no checkboxes are checked in this group,
+      // and therefore that we're honoring all traits in it.
+      honor_checked_only = false;
+    }
+    if ($(this).is(':checked')) {
+      if (! honor_checked_only) {
+        // First checked trait we've found in this group; clear out our list of selected traits
+        // (based on the incorrect "none are checked" assumption) before adding this trait.
+        honor_checked_only = true;
+        cur_sel_traits = {};
+      }
+      cur_sel_traits[$(this).attr('value')] = true;
+    }
+    else {
+      if (! honor_checked_only) {
+        // We haven't found any checked traits yet; our "honor all traits" assumption is still
+        // correct, so add this trait.
+        cur_sel_traits[$(this).attr('value')] = true;
+      }
+    }
+  });
+  $.extend(sel_traits, cur_sel_traits);
+  if (page_mode == 'view all') pds_per_page = pds.length;
+  var cur_page;
+  var pages = [];
+  var num_shown_pds = 0;
+  $.each(pds, function(i, pd) {
+    // All of the single-value traits (orientation, color, etc.) must be selected (keeping
+    // in mind that "none selected" is treated as "all selected") for the PD to continue
+    // being considered.
+    var show = true;
+    for (var j = 0; j < pd.svtraits.length; j++) {
+      if (! (pd.svtraits[j] in sel_traits)) {
+	show = false;
+	break;
+      }
+    }
+    // ... and, at least one of the multiple-value traits (possible number of front images)
+    // has to be selected.
+    if (show) {
+      show = false;
+      for (var j = 0; j < pd.mvtraits.length; j++) {
+	if (pd.mvtraits[j] in sel_traits) {
+	  show = true;
+	  num_shown_pds++;
+	  break;
+	}
+      }
+    }
+
+    // Even an unshown first_pd can cause a new page to be created.  We will delete it later
+    // if it's empty.  (This would happen in a very rare scenario: start with pages 1-5, 6-10,
+    // 11-15; click 11-15 page; select filter that causes only 1-10 to be shown.)
+    if (show || i == first_pd) {
+      if (pages.length == 0) {
+	pages.push([]);
+      }
+      else if (pages[pages.length - 1].length == pds_per_page) {
+	pages.push([]);
+      }
+    }
+    if (i == first_pd) {
+      cur_page = pages.length - 1;
+    }
+    if (show) {
+      pages[pages.length - 1].push(i);
+    }
+  });
+  if (pages[pages.length - 1].length == 0) {
+    pages.pop();
+  }
+  if (cur_page > pages.length - 1) {
+    cur_page = pages.length - 1;
+  }
+
+  return {pages: pages, cur_page: cur_page, num_shown_pds: num_shown_pds};
+}
+
+function draw_page_nums(pages, cur_page) {
+  var shown_pages1 = {};
+  for (var i = 0; i < 3; i++) {
+    base_page = [1, cur_page, pages.length - 1][i];
+    for (var page_adj = -1; page_adj <= 1; page_adj++) {
+      var page = base_page + page_adj;
+      if (page < 0) continue;
+      if (page > pages.length - 1) continue;
+      shown_pages1[page] = 1;
+    }
+  }
+
+  var last_page;
+  var shown_pages2 = [];
+  for (var shown_page in shown_pages1) shown_pages2.push(parseInt(shown_page));
+  shown_pages2.sort(function(a, b) { return a - b; });
+  var page_markers = [];
+  for (var i = 0; i < shown_pages2.length; i++) {
+    var shown_page = shown_pages2[i];
+    if (last_page == null || shown_page - last_page == 1) {
+      // Normal sequential behavior; do nothing.
+    }
+    else if (shown_page - last_page == 2) {
+      // Skipped a single page; might as well show it rather than '...'.
+      page_markers.push({page_num: shown_page - 1, text: shown_page, is_current: shown_page - 1 == cur_page})
+    }
+    else {
+      // Skipped multiple pages.
+      page_markers.push({text: '...'})
+    }
+    page_markers.push({page_num: shown_page, text: shown_page + 1, is_current: shown_page == cur_page})
+    last_page = shown_page;
+  }
+  $('.cs_page_nums').html($('#page_nums_tmpl').render(page_markers));
+}
+
+</script>
+
+</head>
+
+<body>
+{% include '/i/tracking.html' ignore missing %}
+<div id="header"><div class="header-c">
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  --><a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a></div>
+<div id="logo"><a href="../.." ><img src="/fs/i/logo.jpg"></a></div>
+	<div id="menu">
+	{{ menu_data }} 
+	</div><!--END menu--> 
+</div><!--END header-c--></div><!--END header-->
+
+<!--
+<div id="promo_img">
+	<div class="promo_content">
+	<div class="pi_l">THIS WEEK ONLY!</div>
+    <div class="pi_m">Save 10% On All Cards!</div>
+    <div class="pi_r">OFFER ENDS<br /> ON 10/30!</div>
+    </div><!--END promo_content-->
+<!--
+</div><!--END promo_img-->
+<!--
+<div id="promo_txt">Get FREE SHIPPING for all orders over $25.</div><!--END promo-->
+
+
+<div id="container">
+
+<div id="cs_pds_container">
+  <div id="cs_sort">
+    <div class="cs_sort_title">Narrow Your Search</div>
+  </div><!--END cs_sort-->
+
+  <div id="cs_des_prod">
+    <div id="cs_des_head"><h4 id="cs_des_head_text"></h4> <span class="cs_des_desc"></span>
+    </div><!--END cs_des_head-->
+
+	<!--
+    Sort By:
+    <select>
+      <option value="Best Sellers">Best Sellers</option>
+      <option value="New Products">New Products</option>
+    </select>
+	-->
+    
+    <div class="cs_page_nav"><div class="cs_page_mode"><big>|</big>&nbsp;&nbsp;View All </div><div class="cs_page_nums"></div></div>
+	<div class="clear"></div>
+    <div id="cs_pds">
+    </div><!--END cs_pds-->
+	
+    <div class="clear"></div>
+    <div class="cs_page_nav"><div class="cs_page_mode"><big>|</big>&nbsp;&nbsp;View All </div><div class="cs_page_nums"></div></div>
+    <br /><br />
+  </div><!--END des_prod-->
+
+</div><!--END cs_pds_container-->
+
+</div><!--END container-->
+
+
+{% include '/i/subscribe_footer.html' ignore missing %}
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

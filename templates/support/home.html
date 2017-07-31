@@ -1,0 +1,123 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/home.html#30 $ --->
+<head>
+<title>Support Home</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link rel=stylesheet type="text/css" href="/css/support.css">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  DPAjax(
+    "/s/ajax",
+    { command: 'ping' },
+    function (data) {},         // do nothing if successful
+    function (data) {
+      if (data.unavailable)
+        jError(data.Error);
+      else if (data.Error)
+        window.location.replace('/s/login');
+    }
+  );
+
+  $("#menu_home").button();
+  $("#menu_logout").button();
+  $("#menu_home").click(function () { window.location = "/s/home"; });
+  $("#menu_logout").click(function () {
+    DPAjax(
+      "/s/ajax",
+      { command: 'logout' },
+      // Go to login page, whether successful or not.
+      function (data) {
+        window.location.replace('/s/login');
+      },
+      function (data) {
+        window.location.replace('/s/login');
+      }
+    );
+  });
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+<body>
+
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content"> 
+
+<div id="support_menu">
+	<i>Logged in as: <span id="menu_username">{{ username }}</span></i>
+
+	<div class="menu-buttons">
+	<button id="menu_home">Home</button>
+	<button id="menu_logout">Logout</button>
+    </div><!--END menu-buttons-->
+</div><!--end support_menu-->    
+
+<div class="search-content">
+	<div class="search-item">
+    	<div class="search-param">View Cart</div>
+        <div class="search-txt-entry">
+		<form id="get_cart" method="get" action="/s/cart">
+		<input type="text" name='cart_id' id='cart_id' size="40" value="" class="text ui-widget-content ui-corner-all" />
+		</form>
+    	</div>
+	</div><!--end search-items-->
+
+	<div class="search-item">
+    	<div class="search-param">Search for Carts: <br /><small><small><small>(Search names, emails, phones)</small></small></small></div>
+        <div class="search-txt-entry">
+		<form id="search" method="get" action="/s/search">
+		<input type="hidden" name='search_type' id='search_type' value="search" />
+		<input type="text" name='search_str' id='search_str' size="40" value="" class="text ui-widget-content ui-corner-all" />
+		</form>
+    	</div>
+	</div><!--end search-items-->
+
+</div><!--end search-content-->
+
+<div class="settings">
+	<div class="settings-heading">Settings</div>
+	<a href="/s/email_templates">Email Templates</a><br />
+	<a href="/s/promos">Promotions</a><br />
+	<a href="/s/product_manage">Product Manager</a><br />
+	<a href="/s/pd_browser">Product Design Browser</a><br />
+	<a href="/s/lab_product_manage">Lab Product Manager</a><br />
+	<a href="/s/quant_pricing_manage">Quantity Pricing Manager</a><br />
+	<a href="/s/shipping_manage">Shipping Manager</a><br />
+	<a href="/s/nav_tile_pages">Nav Tile Pages Manager</a><br />
+	<a href="/s/design_zip_upload">Design ZIP Uploader</a><br />
+	<a href="/s/product_components_delete">Product-Component Deleter</a><br />
+	<a href="/s/replace_asset">Asset Replacer</a><br />
+	<br />
+	<a href="/s/support_manage">Support Users Manager</a>
+	<br />
+	<br />
+	<a href="/s/db_cache">Database Cache</a>
+</div><!--end MENU-->
+
+<div class="settings">
+	<div class="settings-heading">Reports</div>
+	<a href="/s/search?search_type=review">Review Cart</a><br />
+	<a href="/s/search?search_type=manual">Manually Held Carts</a><br />
+	<a href="/s/search?search_type=recent_complete">Completed Orders (last 30 days)</a><br />
+	<br />
+</div><!--end MENU-->
+
+</div><!--end contnet-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

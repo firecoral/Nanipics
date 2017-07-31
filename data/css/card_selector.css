@@ -1,0 +1,29 @@
+@charset "UTF-8";
+/* CSS Document */
+
+#cs_pds_container	{ height: 1200px; margin: 20px auto;}
+
+	/* Sorting */
+	#cs_sort	{ width: 165px; height: 900px; float: left; margin-left: 10px;}
+	.cs_sort	{ width: 175px;  border-bottom: 1px solid #ccc; font-size: 0.8em;}
+	.cs_sort_title	{ width: 170px; font-weight: bold; font-size: 0.98em; border-bottom: 4px solid #666; }
+	.cs_sort_sub	{ font-weight: bold; margin-top: 20px;}
+	.cs_sort_num	{ font-size: 0.8em; font-style: italic; color: #999;}
+	.cs_sort_opt	{ margin-left: 15px; margin-bottom: 20px;}
+	
+#cs_des_prod	{ width: 780px; margin-left: 15px; float: left;}
+#cs_des_head	{ height: 50px; background-color: #EDEDED; padding: 10px 0px 5px 10px; margin-bottom: 5px;}
+h4		{ margin: 0; padding: 0; font-size: 2.3em; font-weight: bold; float: left;}
+.cs_des_desc	{ font-size: 0.9em;float: right; padding-right: 10px; font-style: italic; padding-top: 20px;}
+.cs_page_nav	{ float: right; text-align: right; padding-right: 10px;}
+.cs_page_mode   { float: right; margin-top: 3px; margin-left: 5px; }
+.cs_page_mode:hover	{ cursor: pointer; }
+.cs_page_nums	{ float: right; }
+.cs_page_num:hover	{ cursor: pointer; }
+.cs_page_num_notcur	{ height: 20px; width: 25px; border: 2px solid transparent; float: left; text-align: center;}
+.cs_page_num_cur	{ height: 20px; width: 25px; border: 2px solid #1387FE; font-weight: bold; float: left; text-align: center;}
+.cs_page_num_txt    { height: 20px; width: 25px; border: 2px solid transparent; float: left; text-align: center;} 
+#cs_pds		{ width: 780px; height: 600px; margin-top: 20px; }
+.cs_pd		{ width: 260px; height: 350px; text-align: center; font-size: 0.8em; line-height: 1.3em; float: left; color :#1d1d1d;}
+.cs_pd:hover	{ cursor: pointer;}
+.cs_pd_img	{ width: 225px; height: 225px; margin: 0px auto; text-align:center; margin-bottom: 15px; }

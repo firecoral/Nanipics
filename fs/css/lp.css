@@ -1,0 +1,52 @@
+@charset "UTF-8";
+/* CSS Document */
+
+.h1_subscribe   { width: 800px; height: 75px; margin: 35px auto 35px; text-align: center; font-size: 2.0em; font-weight: bold; font-family: Georgia, 'Times New Roman', Times, serif; font-style: italic;}
+.subscribe_container { width: 565px; height: 65px; padding: 20px; border: dashed #6ab8b3; line-height: 2.0em; margin: 0px auto; text-align: center;}
+.h2_subscribe { width: 750px; height: 50px; margin: 35px auto 0px; text-align: center; font-size: 1.2em; font-weight: bold; font-style: italic; font-family: Georgia, 'Times New Roman', Times, serif; color: #666;}
+.h3_subscribe { width: 800px; height: 550px; border: 0px solid #F00; margin: 5px auto 250px; padding: 25px;}
+.subscribe_h1 { width: 800px; margin: 15px auto; text-align: center; font-size: 1.3em; font-weight: bold; font-style: italic; }
+
+
+/* Greeting Cards */
+.fb_container { width: 800px; min-height: 800px; margin: 0px auto; padding: 5px; }
+.fb_msg { font-size: 1.3em; text-align: center;}
+.gc_msg { width: 810px; height: 820px; background: url('../i/greeting-cards-bg.jpg') no-repeat top center; margin: 30px auto;}
+.gc-cards { padding-top: 200px;}
+.gc_note { width: 810px; margin: 40px auto; text-align: center; font-size: 1.1em; }
+.gc_promo { width: 810px; height: 120px; padding: 10px; font-family: Arial; font-size: 1.0em; font-weight: bold; margin-bottom: 20px; }
+.gc_container { width: 705px; height: 100px; margin: 35px auto;}
+.gc_size { width: 215px; height: 95px; margin: 5px 10px; float: left; text-align: center;}
+.gc_card { width: 215px; height: 40px; padding-top: 10px; margin-top: 5px; margin-bottom: 5px; background-color: #8a171a; color: #fff; font-weight: bold; font-size: 1.3em;}
+.percent { font-weight: bold; font-size: 1.2em; color: #333;}
+.gc_h1 { font-size: 1.2em; font-weight: bold;}
+.gc_h2 { font-size: 1.4em; color: #fff; background-color: #8c1413; margin: 15px auto; width: 250px; height: 31px; padding: 5px; }
+.gc_red { color: #8c1413; font-size: 2.3em;}
+.gc_s1 { font-size: 0.7em; font-family: Arial; margin-top: 10px; width: 500px; color: #999999;}
+.gc_subscribe { width: 650px; height: 190px; border: 2px dashed #8c1413; padding: 20px; margin: 25px auto; text-align: center;}
+
+/* Introducing NaniPics */
+.intro_msg { width: 815px; height: 1055px; margin: 30px auto; text-align: Left;}
+.intro_txt { width: 810px; height: auto; margin: 0px auto; font-family: Arial; font-size: 1.1em; line-height: 1.5em;}
+.intro_products_container { width: 705px; height: 215px; margin: 25px auto;}
+.intro_col { width: 210px; height: 210px; float: left; margin: 5px 10px;}
+.intro_pic { z-index: -100; }
+.intro_products { background-color: #DCF7F2; width: 175px; height: 27px;  border: 1px solid #333; padding-top: 3px; font-size: 1.1em; z-index: 500; margin: -40px 0px 0px 20px; position: relative; color: #333;}
+.sm_special_offers { height: 25px; margin: 20px auto; text-align: center; width: 810px; }
+
+/* Mounted Prints */
+.mp_msg { width: 810px; height: 820px; background: url('../i/mp-bg.jpg') no-repeat top center; margin: 30px auto; text-align: center; border: 1px solid #F2D664;}
+.gc_yellow { color: #af8920; font-size: 2.3em;}
+.mp_subscribe { width: 650px; height: 230px; border: 2px dashed #af8920; padding: 20px; margin: 25px auto; text-align: center;}
+.mp_box_container { width: 610px; height: 780px; margin: 10px auto 0px;}
+.mp_box { width: 270px; height: 240px; padding: 4px; border: 2px solid #CCA605; float: left; margin: 10px; color: #333;}
+.mp_canvas { width: 570px; height: 148px; padding: 5px; border: 2px solid #CCA605; float: left; margin: 48px auto 12px 10px; color: #333;}
+.mp_h2 { width: 270px; margin: 0px auto; height: 30px; padding-top: 8px; background-color: #F2D664; font-size: 1.2em;}
+.wd_txt { font-size: 0.7em; width: 310px; margin-top: -5px; float: right;}
+.mp_h3 { background-color: #F2D664; font-size: 1.2em; height: 30px; margin: 0px auto; padding-top: 8px; width: 570px;}
+
+
+/* Special Promo */
+.sp_h1 { font-size: 2.9em; font-style: italic; font-weight: bold; margin: 30px 0px 0px;}
+.sp_msg { width: 450px; height: 200px; background: url('../i/sp_code.jpg') no-repeat top center; margin: 30px auto; padding-top: 40px; text-align: center; font-family: Arial; font-size: 0.9em;}
+.promo_code { font-weight: bold; font-size: 2.0em; margin: 20px 0px;}

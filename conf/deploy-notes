@@ -1,0 +1,32 @@
+
+Not rigorous:
+
+install ports:
+    www/mod_wsgi3
+    devel/py-Jinja2
+    databases/py-MySQLdb
+    graphics/py-imaging
+    devel/py-simplejson
+    www/py-werkzeug
+    net/py-suds
+    net-mgmt/net-snmp
+    # Following pulled in by mod_wsgi3:
+    #     lang/python27
+    #     www/apache22
+
+OR install pre-built packages, currently in:
+    raid4:/tank/systems/csprod-9.1/pkgs
+    raid4:/tank/systems/all-9.1/pkgs
+
+mount filesystems:
+
+raid5:/tank/csasset           /raid5/csasset   nfs     rw
+raid5:/tank/csimage           /raid5/csimage   nfs     rw
+
+add links to filesystems in /data
+
+add apache config file:
+
+    echo "Include /home/cs/conf/test.conf" > /usr/local/etc/apache22/Includes/cs.conf
+
+deploy bits in /home/cs

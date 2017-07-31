@@ -1,0 +1,103 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Replace Asset</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+<link type="text/css" href="/css/fileupload.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/FileUpload.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/fu/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/js/fu/jquery.fileupload.js"></script>
+
+{% raw %}
+<script id="success_tmpl" type="text/x-jsrender">
+  {{:old_afile}}: success.  {{:new_afile}} added.  Columns repointed (any scaled images omitted): {{:repointed}}.<br /><br />
+</script>
+
+<script id="error_tmpl" type="text/x-jsrender">
+  <span style="color: red;">{{:old_afile}}: error - {{:Error}}</span><br /><br />
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+function ping() {
+  DPAjax(
+    "/s/ajax",
+    { command: 'ping' },
+    function (data) {},         // do nothing if successful
+    function (data) {
+      if (data.unavailable)
+        jError(data.Error);
+      else if (data.Error)
+        window.location.replace('/s/login');
+    }
+  );
+}
+
+$(document).ready( function() {
+  ping();
+  $("#upload-button").button();
+  $("#upload-button").fileuploader({
+    title: "Upload Replacement Asset File",
+    url: '/s/ajax_asset',
+    message: 'Make sure the filename matches the asset file you wish to replace.<br /><br />',
+    pre_show: function(element) {
+      // Ping test here
+      return true;
+    },
+    done: function (e, element, result) {
+      $('#results').append($('#success_tmpl').render(result));
+    },
+    error: function (e, element, result) {
+      $('#results').append($('#error_tmpl').render(result));
+    }
+  });
+
+  $('#clear-button').button().on('click', function() {
+    $('#results').empty();
+  });
+  $(window).unload(function() {});
+});
+
+
+</script>
+</head>
+
+<body>
+
+<div class="logo-header">
+  <div class="support">SUPPORT</div>
+  <img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content">
+
+  <div class="content-header">
+    <div class="content-header-h1">Upload Replacement Asset File</div>
+    <div class="content-header-btn"><input type="button" id="done" value="Back" onClick="history.back();return false;" /></div>
+  </div>
+
+  <div align="center">
+    <button id="upload-button">Upload Replacement Asset File</button>
+    <button id="clear-button">Clear Logs</button>
+  </div>
+
+  <div id="results" />
+
+</div><!--end content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>
+

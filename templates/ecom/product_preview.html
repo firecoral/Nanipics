@@ -1,0 +1,154 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas Printed By Your own Pro Team at NaniPics. " /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" href="/css/style.css" rel="stylesheet" />
+<link type="text/css" href="/css/product_build.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+
+{% raw %}
+
+<script id="preview_page_tmpl" type="text/x-jsrender">
+<div class="preview" style="background-image: url('{{:url}}')">
+{{if blockout_afile}}
+  <img src="/a/{{:blockout_afile}}" style="position: relative; width: {{:pw}}px; height: {{:ph}}px; left: {{:pl}}px; top: {{:pt}}px;">
+{{/if}}
+</div>
+</script>
+
+{% endraw %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $('button').button();
+});
+
+$(document).ready(function() {
+  DPAjax(
+    '/e/ajax_session', {
+      command: 'get_product',
+      include_build: 1
+    },
+    function (data) {
+      var cw = parseInt($('#preview1').width());
+      var ch = parseInt($('#preview1').height());
+      var ca = cw / ch;
+      var pages = [];
+      for (var i = 0; i < data.product.pages.length; i++) {
+	var pw, ph, pt, pl;
+	var page = data.product.pages[i];
+	if (page.aspect >= ca) {
+	  pw = cw;
+	  ph = Math.round(pw / page.aspect);
+	  pl = 0;
+	  pt = Math.round((ch - ph) / 2);
+	}
+	else {
+	  ph = ch;
+	  pw = Math.round(ph * page.aspect);
+	  pt = 0;
+	  pl = Math.round((cw - pw) / 2);
+	}
+        pages.push({
+	  url: '/e/p?s='+page.seq+'&w='+cw+'&h='+ch+'&t=ff&a='+data.build.build_access_id+'&r='+data.build.rev,
+	  blockout_afile: page.blockout_afile,
+	  pw: pw,
+	  ph: ph,
+	  pl: pl,
+	  pt: pt
+	});
+      }
+      $('#preview').html($('#preview_page_tmpl').render(pages));
+    }
+  );
+
+  $('#submit_product').on('click', function() {
+    if (! $('#pp_confirm').prop('checked')) {
+      jAlert('Please acknowledge the product will be printed as shown in the Preview by checking the box.', 'Confirmation Needed');
+      return;
+    }
+    document.location.href = '/e/pq';
+  });
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+
+<body>
+
+{% include '/i/tracking.html' ignore missing %}
+<div id="header-pb"><div class="header-c">
+  <div id="logo-pb"><img src="/i/logo-pb.jpg"></div>
+  <div class="prod_title">
+    Preview
+  </div><!--END prod_title-->
+  
+	<div class="header_btn">
+  	<button id="submit_product">Continue</button>
+	</div>  
+ 
+</div><!--END header-c-->
+</div><!--END header-->
+
+
+
+
+<div id="prev_container"> 
+  <br />
+  <div id="prev_container-c">
+   
+    <div id="preview">
+    <div id="preview1" class="preview"></div><!--END preview1-->
+    </div><!--END preview-->
+     
+     <div id="prev_txt">
+     <strong>Final Proof</strong><br /><br />
+     Please review carefully your image(s) positioning, and text/spelling (if applicable). 
+     Your personalized content will be printed exactly as shown in the Preview.
+     
+     
+     <br /><br />
+     You may edit the personalized content by clicking on the browser back button.  
+     
+      
+    </div><!--END prev_txt-->
+    
+    
+     <div id="prev_chk">
+      <table><tr>
+	<td valign="top"><input id="pp_confirm" type="checkbox" name="agree" value="agree"></td>
+	<td>
+	  Please acknowledge the product will be printed as shown in the Preview by checking the box.
+        </td>
+      </tr></table>
+    </div><!--END prev_chk-->
+        
+	
+    <div class="clear"></div>
+    
+    
+    <br /><br /><br /><br />
+    
+</div><!--END prev_container-c-->    
+</div><!--END prev_container-->
+
+{% include '/i/minimal_footer.html' ignore missing %}
+
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

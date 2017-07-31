@@ -1,0 +1,23 @@
+@charset "UTF-8";
+/* CSS Document */
+
+#splash		{ width: 980px; height: 500px; margin-bottom: -2px;}
+.slideshow  { width: 980px; height: 500px; margin: 0px auto; padding:0px;}
+
+.about_nani { width: 980px; height: 500px; background: url(/fs/i/splash/about_nanipics.jpg) no-repeat;}
+.about_nani_txt { color: #5f5f5f; font-size: 1.3em; margin-left: 20px; padding-top: 350px; width: 925px; text-align:center; line-height:1.4em; }
+
+.satisfaction { width: 980px; height: 500px; background: url(/fs/i/splash/satisfaction-guaranteed.jpg) no-repeat;}
+.satisfaction_txt { color: #70857c; font-size: 1.1em; margin-left: 52px; padding-top: 130px; width: 880px; text-align:center; line-height:1.4em;}
+.satisfaction_txt2 { font-weight: bold; letter-spacing: 1px; text-transform: uppercase;}
+
+.bamboo_mounted_prints { width: 980px; height: 500px; background: url(/fs/i/splash/bamboo-mounted-prints.jpg) no-repeat;}
+.standout_mounted_prints { width: 980px; height: 500px; background: url(/fs/i/splash/standout-mount-print.jpg) no-repeat;}
+.metal_mounted_prints { width: 980px; height: 500px; background: url(/fs/i/splash/metal-mounted-print.jpg) no-repeat;}
+.canvases { width: 980px; height: 500px; background: url(/fs/i/splash/canvases.jpg) no-repeat;}
+.coaster_promotion { width: 980px; height: 500px; background: url(/fs/i/splash/coaster-promotion.jpg) no-repeat;}
+.ipadmini { width: 980px; height: 500px; background: url(/fs/i/splash/ipadmini.jpg) no-repeat;}
+.holidaypromo { width: 980px; height: 500px; background: url(/fs/i/splash/75-percent.jpg) no-repeat;}
+
+.mothersdaycanvas { width: 980px; height: 500px; background: url(/fs/i/splash/mothers-day-canvas-wrap.jpg) no-repeat;}
+.mothersday2014 { width: 980px; height: 500px; background: url(/fs/i/splash/mothersday2014.jpg) no-repeat;}

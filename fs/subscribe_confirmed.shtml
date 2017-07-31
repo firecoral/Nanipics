@@ -1,0 +1,110 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Incredible Offers, Holiday Cards, Greeting Cards, Canvas Wraps, Mounted Photo Prints | NaniPics</title>
+<meta name="description" content="Sign up for promotion offers on Holiday Cards, Greeting Cards, Mounted Photo Prints, Metal Prints, and Canvas Wraps." /> 
+<meta name="keywords" content="holiday cards, christmas cards, greeting cards, christmas greeting cards, holiday card, christmas card, xmas card, greet card, new year's cards, photo cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics" />
+
+<link type="image/x-icon" href="/favicon.ico" rel="shortcut icon">
+<link rel="apple-touch-icon-precomposed" sizes="114×114" href="/icons/apple-touch-icon-114x114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72×72" href="/icons/apple-touch-icon-72×72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="/icons/touch-icon-iphone-precomposed.png">
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/fs/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/fs/css/lp.css" />
+<link type="text/css" rel="stylesheet" href="/fs/css/splash.css" />
+<link type="text/css" href="/fs/css/superfish.css" media="screen" rel="stylesheet">
+
+
+<script type="text/javascript" src="<!--#echo var="jquery" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_ui" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_json" -->"></script>
+<script type="text/javascript" src="/js/jquery.cycle.all.latest.js"></script>
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $('button').button();
+  $('#nav2').menu({position: {at: 'left bottom'}});
+  $('ul.sf-menu').superfish();
+});
+</script>
+
+</head>
+
+<body>
+
+<!--#include virtual="/i/tracking.html" --> 
+
+<div id="header"><div class="header-c">
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  <a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a>--> &nbsp;</div>
+<div id="logo"><a href="/" ><img src="/fs/i/logo.jpg"></a></div>
+<!--#include file="menu.shtml" --> 
+</div><!--END header-c--></div><!--END header-->
+
+
+<div id="container">    
+
+<div class="clear"></div>
+
+<div align="center">
+<br /><br />
+<image src="i/welcome-to-nanipics.jpg" />
+</div>
+<br />
+<div style="width: 815px; margin: 0px auto; padding: 25px 15px; line-height: 1.5em; border-top: 1px solid #666; ">
+Thank you for signing up for our emails! You will now be updated on our special offers, new products and much more!
+<br /><br />
+
+Special offers emails are our main mean of communications. So watch out for incredible promotions to help you to 
+get to know our offerings. We sincerely appreciate it if you would also pass them onto friends and families so they 
+can enjoy the special experience at NaniPics.
+<br /><br />
+
+We have been providing photo product to professional photographers over the past decade. NaniPics's mission is to 
+make available the same professional quality photo products directly to you and turn your own favorite photos into 
+mementos that can be enjoyed for years to come. <br /><br />
+
+Sincerely,<br />
+<strong>The NaniPics Team</strong>
+<br /><br />
+<br /><br />
+
+<div align="center">
+Help us share the news!<br />
+<img src="/fs/i/fb-likeus.png" /><br />
+<small>Like us on Facebook by clicking the 'Like' button Below.</small><br />
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=1422018168015397";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<div class="fb-like" data-href="http://facebook.com/my.nanipics" data-width="200" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>
+</div>
+<br /><br /><br /><br />
+	
+   
+P.S. Your email address will only be used by NaniPics to provide you with our site information. It will 
+&quot;NOT&quot; be provided to third parties. If at any time you would like to stop receiving emails from NaniPics, 
+you can unsubscribe by clicking on the link at the bottom of the page.
+
+</div>
+
+
+<br /><br /><br /><br /><br /><br /><br /><br />
+</div><!--END container-->
+
+
+<!--#include file="subscribe_footer.shtml" --> 
+
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

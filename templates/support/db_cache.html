@@ -1,0 +1,91 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/db_cache.html#7 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Database Cache</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+<script type="text/javascript">
+
+function ping() {
+  DPAjax(
+    "/s/ajax",
+    { command: 'ping' },
+    function (data) {},         // do nothing if successful
+    function (data) {
+      if (data.unavailable)
+        jError(data.Error);
+      else if (data.Error)
+        window.location.replace('/s/login');
+    }
+  );
+}
+
+$(document).ready( function() {
+  ping();
+  $("#done").button();
+  $("#accordion").accordion({
+    autoHeight: false,
+    collapsible: true
+  });
+  $(window).unload(function() {});
+});
+
+</script>
+</head>
+<body>
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content"> 
+
+<div class="content-header">
+	<div class="content-header-h1">Database Cache</div>
+    <div class="content-header-btn"><input type="button" id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+
+<table width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td colspan="2">
+      <b>Server/Process: </b>{{ SERVER_ADDR }}:{{ pid }}<br /><br />
+      <b>Last Cache Invalidate: </b>{{ cache_time }}<br /><br />
+      <b>Hit Rate: </b>{{ try - miss }} / {{ try }}<br /><br />
+      <b>Invalidates: </b>{{ invalidate }}<br />
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top"><hr /></td>
+  </tr>
+    <td colspan="2">
+      <div id="accordion">
+        {% for key in db_pretty %}
+          <h3><a href="#">{{ key }}</a></h3>
+          <pre>
+{{ db_pretty[key] }}
+          </pre>
+        {% endfor %}
+      </div>
+    </td>
+  </tr>
+</table>
+</div>
+</td></tr></table>
+
+</div><!--end content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

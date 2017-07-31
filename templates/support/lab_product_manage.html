@@ -1,0 +1,219 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/lab_product_manage.html#9 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Manage Lab Products</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+{% raw %}
+<script id="lab_product_tmpl" type="text/x-jsrender">
+  <div id="lab_product-{{:lab_product_id}}" data-lab_product_id="{{:lab_product_id}}" style="display: table-row; text-align:left;">
+    <div style="display: table-cell; width: 300px; padding: 5px 0px;">&nbsp;&nbsp;{{>name}}</div>
+    <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;{{lab:lab_id}}</div>
+    <div style="display: table-cell; width: 75px; padding: 5px 0px;">&nbsp;&nbsp;{{>quantity_base}}</div>
+    <div style="display: table-cell; width: 75px; padding: 5px 0px;">&nbsp;&nbsp;{{>quantity_incr}}</div>
+    <div style="display: table-cell; width: 100px; padding: 5px 0px;">&nbsp;&nbsp;{{currency:price}}</div>
+    <div class="edit clickable" style="display: table-cell; text-align:center; width: 35px;"><small>edit</small></div>
+  </div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+$.views.converters({
+  currency: function(value) {
+    if (!value)
+      value = 0;
+    return "$ " + value.toFixed(2);
+  },
+  lab: function(value) {
+    if (!value)
+      return "";
+    else
+      return labs[value].name;
+  }
+
+});
+
+var lab_products = new Object();
+var labs = {{ labs }};
+
+function ping() {
+  DPAjax(
+    "/s/ajax",
+    { command: 'ping' },
+    function (data) {},         // do nothing if successful
+    function (data) {
+      if (data.unavailable)
+        jError(data.Error);
+      else if (data.Error)
+        window.location.replace('/s/login');
+    }
+  );
+}
+
+function lab_product_update(args) {
+  args.command = 'edit';
+  DPAjax(
+    "/s/ajax_lab_product",
+    args,
+    function (data) {
+      lab_product_id = data.lab_product.lab_product_id;
+      lab_products[lab_product_id] = data.lab_product;
+      $("#lab_product-" + lab_product_id).replaceWith($('#lab_product_tmpl').render(data.lab_product));
+      document.body.style.cursor = 'auto';
+    }
+  );
+};
+
+function dialog_submit(dialog) {
+  var name = $('#p_name').val();
+  if (!name) {
+    jError("Error: Please provide a name for this lab product.");
+    return;
+  }
+  var price = $('#p_price').val();
+  if (!price) {
+    jError("Error: Please provide a price for this lab product.");
+    return;
+  }
+  var shipping_class_id = $('#p_shipping_class').val();
+  var lab_product_id = $("#dialog-form").data('lab_product_id');
+  var args = {
+    lab_product_id: lab_product_id,
+    name: name,
+    price: price,
+    quantity_base: $('#p_q_base').val(),
+    quantity_incr: $('#p_q_incr').val(),
+    shipping_class_id: shipping_class_id,
+    quantity_text: $('#p_quantity_text').val()
+  };
+  lab_product_update(args);
+  $(dialog).dialog("close");
+};
+
+$(document).ready( function() {
+  ping();
+  $(document).on('click', ".edit", function() {
+    var lab_product_id = $(this).parent('div').attr('data-lab_product_id');
+    var lab_product = lab_products[lab_product_id];
+    $('#p_name').val(lab_product.name);
+    $('#p_price').val(lab_product.price.toFixed(2));
+    $('#p_q_base').val(lab_product.quantity_base);
+    $('#p_q_incr').val(lab_product.quantity_incr);
+    $('#p_shipping_class').val(lab_product.shipping_class_id);
+    $('#p_quantity_text').val(lab_product.quantity_text);
+    $("#dialog-form").data('lab_product_id', lab_product_id);
+    $('option[data-lab_id!="' + lab_product.lab_id + '"]').hide();
+    $('option[data-lab_id="' + lab_product.lab_id + '"]').show();
+    $("#dialog-form").dialog("open");
+  });
+
+  $("#dialog-form").dialog({
+			autoOpen: false,
+			height: 'auto',
+			width: 1000,
+			modal: true,
+			buttons: {
+				Save: function() {
+				  dialog_submit(this);
+				},
+				Cancel: function() {
+					$(this).dialog("close");
+				}
+			}
+  });
+
+  DPAjax(
+    "/s/ajax_lab_product",
+    {
+      command: 'get'
+    },
+    function (data) {
+      $.each(data.lab_products, function (i, lab_product) {
+        lab_products[lab_product.lab_product_id] = lab_product;
+        $("#lab_product_list").append($('#lab_product_tmpl').render(lab_product));
+      });
+      document.body.style.cursor = 'auto';
+    },
+    function (data) {
+      jError("Error: " + data.Error);
+      document.body.style.cursor = 'auto';
+    }
+  );
+
+  $("#done").button();
+  $(window).unload(function() {});
+});
+
+
+</script>
+</head>
+<body>
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content"> 
+
+<div class="content-header">
+	<div class="content-header-h1">Manage Lab Products</div>
+    <div class="content-header-btn"><input type="button" id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+
+
+      <table width="875" border="0" cellspacing="0" cellpadding="3" style="text-align:left;" align="center">
+        <tr>
+          <td style="border:1px dotted #dcdcdd;padding:10px;">
+            <div class="ui-widget-header">
+              <div style="display: table-row; text-align:left; height: 25px;">			
+                <div style="display: table-cell; width: 300px; padding: 5px 0px;">&nbsp;&nbsp;Product</div>
+                <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;Lab</div>
+                <div style="display: table-cell; width: 75px; padding: 5px 0px;">&nbsp;&nbsp;Base Qty</div>
+                <div style="display: table-cell; width: 75px; padding: 5px 0px;">&nbsp;&nbsp;Incr Qty</div>
+                <div style="display: table-cell; width: 100px; padding: 5px 0px;">&nbsp;&nbsp;Unit Price</div>
+                <div style="display: table-cell; text-align:center; width: 35px;"></div>
+              </div>
+            </div>
+            <div id="lab_product_list" class="ui-widget-content"></div>
+          </td>
+        </tr>
+      </table>
+ 
+<div id="dialog-form" title="Edit Lab Product" style="display: none;">
+  <form id="lab_product_dialog">
+    <div class="p_label"><label for="p_name">Name:</label></div>
+    <input type="text" name="p_name" id="p_name" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="p_price">Price:</label>
+    <input type="text" name="p_price" id="p_price" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="p_q_base">Quantity Minimum:</label>
+    <input type="text" name="p_q_base" id="p_q_base" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="p_q_incr">Quantity Increment:</label>
+    <input type="text" name="p_q_incr" id="p_q_incr" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="p_shipping_class">Shipping Class:</label>
+    <select id="p_shipping_class">
+    {% for option in shipping_classes %}
+      <option data-lab_id="{{ option.lab_id }}" value="{{ option.shipping_class_id }}">{{ option.name }}
+    {% endfor %}
+    </select><br /><br />
+    <label for="p_quantity_text">Text Shown on Quantity Page (HTML):</label><br />
+    <textarea id="p_quantity_text" style="width: 95%;"></textarea><br /><br />
+  </form>
+</div>
+</div><!--end content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

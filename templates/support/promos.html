@@ -1,0 +1,416 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/promos.html#8 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Manage Promotions</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+{% raw %}
+<script id="promo_tmpl" type="text/x-jsrender">
+  <div id="promo-{{:promo_id}}" data-promo_id="{{:promo_id}}" style="display: table-row; text-align:left;">
+    <div style="display: table-cell; width: 20px; padding: 5px 0px;">&nbsp;&nbsp;{{:promo_id}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{:name}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{:code}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{:expire_date}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{:used}}/{{:total_uses}}</div>
+    <div class="edit clickable" style="display: table-cell; text-align:center; width: 35px;"><small>edit</small></div>
+  </div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+var promos = new Object();
+
+function promo_update(args) {
+  args.command = 'edit';
+  DPAjax(
+    "/s/ajax_promo",
+    args,
+    function (data) {
+      promo_id = data.promo.promo_id;
+      promos[promo_id] = data.promo;
+      $("#promo-" + promo_id).replaceWith($('#promo_tmpl').render(data.promo));
+      document.body.style.cursor = 'auto';
+    }
+  );
+};
+
+function promo_add() {
+  args = {};
+  args.command = 'add';
+  DPAjax(
+    "/s/ajax_promo",
+    args,
+    function (data) {
+      promos[data.promo.promo_id] = data.promo;
+      $("#promo_list").append($('#promo_tmpl').render(data.promo));
+      document.body.style.cursor = 'auto';
+    }
+  );
+  return;
+};
+
+
+function promos_redraw(promo_list) {
+  var show_expired = ($("#show_expired").is(':checked') ? 1 : 0);
+  var now = new Date();
+  $("#promo_list").html('');
+  $.each(promo_list, function (i, promo) {
+    promos[promo.promo_id] = promo;
+    exp_date = new Date(promo.expire_date);
+    if (show_expired || (now.getTime() < exp_date.getTime()))
+      $("#promo_list").append($('#promo_tmpl').render(promo));
+  });
+};
+
+function dialog_submit(dialog) {
+  var pr_name = $('#pr_name').val();
+  if (!pr_name) {
+    jError("Error: Please provide a name for this promotion.");
+    return;
+  }
+  var req_dollar = $('#pr_min_price').val();
+  var req_quantity = $('#pr_quantity').val();
+  var req_product_id = $('#pr_product_id').val();
+  var req_promo_category_quantity = $('#pr_req_promo_category_quantity').val();
+  var req_promo_category_id = $('#pr_req_promo_category_id').val();
+
+  var rew_shipping_credit = $('#pr_rew_shipping_credit').val();
+  var rew_dollar = $('#pr_rew_dollar').val();
+  var rew_percent = $('#pr_rew_percent').val();
+
+  var rew_product_id = $('#pr_rew_product_id').val();
+  var rew_product_quantity = $('#pr_rew_product_quantity').val();
+  var rew_product_percent = $('#pr_rew_product_percent').val();
+  var rew_product_dollar = $('#pr_rew_product_dollar').val();
+
+  var rew_promo_category_id = $('#pr_rew_promo_category_id').val();
+  var rew_promo_category_quantity = $('#pr_rew_promo_category_quantity').val();
+  var rew_promo_category_percent = $('#pr_rew_promo_category_percent').val();
+  var rew_promo_category_dollar = $('#pr_rew_promo_category_dollar').val();
+
+  if (req_quantity <= 0 && req_product_id) {
+    jError("Required Product has quantity 0.");
+    return;
+  }
+  else if (req_quantity > 0 && !req_product_id) {
+    jError("Required Product has quantity > 0, but no product selected.");
+    return;
+  }
+  if (req_quantity > 0 && req_promo_category_quantity > 0) {
+    jError("Cannot have both a product and product category in the promotion");
+    return;
+  }
+  if (req_dollar > 0 && (req_quantity > 0 || req_promo_category_quantity > 0)) {
+    jError("Cannot have dollar requirement with a product or product category in the promotion");
+    return;
+  }
+
+  var rew_cnt = 0;
+  if (rew_percent > 0)
+    rew_cnt++;
+  if (rew_dollar > 0)
+    rew_cnt++;
+  if (rew_product_id > 0) {
+    rew_cnt++;
+    if (rew_product_quantity < 0) {
+      jError("Please select a non-negative reward product quantity.  (0 is unlimited)");
+      return;
+    }
+    if (rew_product_percent > 0 && rew_product_dollar > 0) {
+      jError("Use only one of percent-off or dollar off for the promotion product.");
+      return;
+    }
+    if (rew_product_percent == 0 && rew_product_dollar == 0) {
+      jError("Please specify one of percent-off or dollar-off for the promotion product.");
+      return;
+    }
+    if (rew_product_percent > 100) {
+      jError("Percentage-off limited to 100%");
+      return;
+    }
+    // just in case....
+    var rew_promo_category_quantity = 0;
+    var rew_promo_category_percent = 0;
+    var rew_promo_category_dollar = 0;
+  }
+  if (rew_promo_category_id > 0) {
+    rew_cnt++;
+    if (rew_promo_category_quantity < 0) {
+      jError("Please select a non-negative reward promotion category quantity.  (0 is unlimited)");
+      return;
+    }
+    if (rew_promo_category_percent > 0 && rew_promo_category_dollar > 0) {
+      jError("Use only one of percent-off or dollar off for the promotion category.");
+      return;
+    }
+    if (rew_promo_category_percent == 0 && rew_promo_category_dollar == 0) {
+      jError("Please specify one of percent-off or dollar-off for the promotion category.");
+      return;
+    }
+    if (rew_promo_category_percent > 100) {
+      jError("Percentage-off limited to 100%");
+      return;
+    }
+    // just in case....
+    var rew_product_quantity = 0;
+    var rew_product_percent = 0;
+    var rew_product_dollar = 0;
+  }
+
+  if (rew_cnt == 0 && rew_shipping_credit <= 0) {
+    jError("You must select a single reward (other than the shipping credit)");
+    return;
+  }
+  if (rew_cnt > 1) {
+    jError("You have selected too many rewards (" + rew_cnt + ").  Please select only one.");
+    return;
+  }
+  
+  var promo_id = $("#dialog-form").data('promo_id');
+  var args = {
+    promo_id: promo_id,
+    name: pr_name,
+    code: $('#pr_code').val(),
+    expire_date: $('#pr_expire_date').val(),
+    total_uses: $('#pr_total_uses').val(),
+    consumer_text: $('#pr_consumer_text').val(),
+    req_dollar: req_dollar,
+    req_quantity: req_quantity,
+    req_product_id: req_product_id,
+    req_promo_category_quantity: req_promo_category_quantity,
+    req_promo_category_id: req_promo_category_id,
+    rew_shipping_credit: rew_shipping_credit,
+    rew_dollar: rew_dollar,
+    rew_percent: rew_percent,
+    rew_product_id: rew_product_id,
+    rew_product_quantity: rew_product_quantity,
+    rew_product_percent: rew_product_percent,
+    rew_product_dollar: rew_product_dollar,
+    rew_promo_category_id: rew_promo_category_id,
+    rew_promo_category_quantity: rew_promo_category_quantity,
+    rew_promo_category_percent: rew_promo_category_percent,
+    rew_promo_category_dollar: rew_promo_category_dollar
+  };
+  promo_update(args);
+  $(dialog).dialog("close");
+};
+
+
+$(document).ready( function() {
+  $("#done").button();
+  $("#promo_add").button();
+  $("#promo_add").click(function(e) {
+    promo_add();
+  });
+  $("#show_expired").click(function(e) {
+    promos_redraw(promos);
+  });
+
+  $("#pr_expire_date").datepicker();
+
+  $(document).on('click', ".edit", function() {
+    var promo_id = $(this).parent('div').attr('data-promo_id');
+    var promo = promos[promo_id];
+    $('#pr_name').val(promo.name);
+    $('#pr_code').val(promo.code);
+    $('#pr_expire_date').val(promo.expire_date);
+    $('#pr_total_uses').val(promo.total_uses);
+    $('#pr_used').html(promo.used);
+    $('#pr_consumer_text').val(promo.consumer_text);
+    $('#pr_min_price').val(promo.req_dollar);
+    $('#pr_quantity').val(promo.req_quantity);
+    $('#pr_product_id').val(promo.req_product_id);
+    $('#pr_req_promo_category_quantity').val(promo.req_promo_category_quantity);
+    $('#pr_req_promo_category_id').val(promo.req_promo_category_id);
+    $('#pr_rew_shipping_credit').val(promo.rew_shipping_credit);
+    $('#pr_rew_percent').val(promo.rew_percent);
+    $('#pr_rew_dollar').val(promo.rew_dollar);
+    $('#pr_rew_product_id').val(promo.rew_product_id);
+    $('#pr_rew_product_quantity').val(promo.rew_product_quantity);
+    $('#pr_rew_product_percent').val(promo.rew_product_percent);
+    $('#pr_rew_product_dollar').val(promo.rew_product_dollar);
+    $('#pr_rew_promo_category_id').val(promo.rew_promo_category_id);
+    $('#pr_rew_promo_category_quantity').val(promo.rew_promo_category_quantity);
+    $('#pr_rew_promo_category_percent').val(promo.rew_promo_category_percent);
+    $('#pr_rew_promo_category_dollar').val(promo.rew_promo_category_dollar);
+    $("#dialog-form").data('promo_id', promo_id);
+    $("#dialog-form").dialog("open");
+  });
+
+  $("#dialog-form").dialog({
+    autoOpen: false,
+    height: 'auto',
+    width: 1000,
+    modal: true,
+    buttons: {
+      Save: function() {
+        dialog_submit(this);
+      },
+      Cancel: function() {
+        $(this).dialog("close");
+      }
+    }
+  });
+
+
+  DPAjax(
+    "/s/ajax_promo",
+    {
+      command: 'get'
+    },
+    function (data) {
+      promos_redraw(data.promos);
+      document.body.style.cursor = 'auto';
+    },
+    function (data) {
+      jError("Error: " + data.Error);
+      document.body.style.cursor = 'auto';
+    }
+  );
+  $(window).unload(function() {});
+});
+
+
+</script>
+</head>
+<body>
+
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content">
+
+<div class="content-header">
+	<div class="content-header-h1">Manage Promotions</div>
+    <div class="content-header-btn"><input type="button" class='crop_menu_btn' id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+
+<div align="center">
+  <input type="button" id="promo_add" value="New Promotion"/>
+  &nbsp; &nbsp; &nbsp; &nbsp;
+  <label for="show_expired">Show Expired Promos:</label>
+  <input id="show_expired" type="checkbox">
+</div><br />
+          
+      <table width="875" border="0" cellspacing="0" cellpadding="3" style="text-align:left;" align="center">
+        <tr>
+          <td style="border:1px dotted #dcdcdd;padding:10px;">
+            <div class="ui-widget-header">
+              <div style="display: table-row; text-align:left;">
+                  <div style="display: table-cell; width: 20px; padding: 5px 0px;">&nbsp;</div>
+                  <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Name</div>
+                  <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Code</div>
+                  <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Expire Date</div>
+                  <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Uses</div>
+                  <div style="display: table-cell; text-align:center; width: 35px;"></div>
+                <div style="display: table-cell; text-align:center; width: 30px;"></div>
+              </div>
+            </div>
+            <div id="promo_list" class="ui-widget-content"></div>
+          </td>
+        </tr>
+      </table>
+
+
+<style>
+#pr_consumer_text, #pr_requirements, #pr_rewards { width: 98%; }
+#consumer_text { height: 5em; }
+</style>
+<div id="dialog-form" title="Edit Promotion" style="display: none;">
+  <form id="promo_dialog">
+    <div class="pr_label"><label for="pr_name">Name:</label></div>
+    <input type="text" name="pr_name" id="pr_name" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <div class="pr_label"><label for="pr_code">Code:</label></div>
+    <input type="text" name="pr_code" id="pr_code" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <div class="pr_label"><label for="pr_expire_date">Expire Date:</label></div>
+    <input type="text" name="pr_expire_date" id="pr_expire_date" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+      <div class="pr_label"><label for="pr_total_uses">Total Uses (<span id="pr_used"></span> used):</label></div>
+      <input type="text" name="pr_total_uses" id="pr_total_uses" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <div class="pr_label"><label for="pr_consumer_text">Consumer Description:</label></div>
+    <textarea id="pr_consumer_text" class="text ui-widget-content ui-corner-all" />
+    </textarea><br />
+    <fieldset id="pr_requirements">
+      <legend>Requirements</legend>
+      <div class="pr_label"><label for="pr_min_price">Minimum Price:</label></div>
+      <input type="text" name="pr_min_price" id="pr_min_price" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+
+      <div class="pr_label"><label for="pr_quantity">Product:</label></div>
+      <input type="text" name="pr_quantity" id="pr_quantity" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <select id="pr_product_id">
+        <option value="">None
+        {% for product in products %}
+          <option value="{{ product.product_id }}">{{ product.name|e}}
+        {% endfor %}
+      </select><br /><br />
+
+      <div class="pr_label"><label for="pr_req_promo_category_quantity">Category:</label></div>
+      <input type="text" name="pr_req_promo_category_quantity" id="pr_req_promo_category_quantity" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <select id="pr_req_promo_category_id">
+        <option value="">None
+        {% for promo_category in promo_categories %}
+          <option value="{{ promo_category.promo_category_id }}">{{ promo_category.name|e}}
+        {% endfor %}
+      </select>
+    </fieldset>
+    <fieldset id="pr_rewards">
+      <legend>Rewards</legend>
+      <div class="pr_label"><label for="pr_rew_shipping_credit">Shipping Credit:</label></div>
+      <input type="text" name="pr_rew_shipping_credit" id="pr_rew_shipping_credit" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+      <div class="pr_label"><label for="pr_rew_percent">Percentage-Off:</label></div>
+      <input type="text" name="pr_rew_percent" id="pr_rew_percent" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+      <div class="pr_label"><label for="pr_rew_dollar">Dollar-Off:</label></div>
+      <input type="text" name="pr_rew_dollar" id="pr_rew_dollar" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+
+      <div class="pr_label"><label for="pr_rew_product_id">Product:</label></div>
+      <select id="pr_rew_product_id">
+        <option value="">None
+        {% for product in products %}
+          <option value="{{ product.product_id }}">{{ product.name|e}}
+        {% endfor %}
+      </select>
+      <label for="pr_rew_product_quantity">Qty <small>(0 for unlimited)</small>:</label>
+      <input type="text" name="pr_rew_product_quantity" id="pr_rew_product_quantity" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <label for="pr_rew_product_percent">Percent-off:</label>
+      <input type="text" name="pr_rew_product_percent" id="pr_rew_product_percent" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <label for="pr_rew_product_dollar">Dollar-off:</label>
+      <input type="text" name="pr_rew_product_dollar" id="pr_rew_product_dollar" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <br /><br />
+
+      <div class="pr_label"><label for="pr_rew_promo_category_id">Category:</label></div>
+      <select id="pr_rew_promo_category_id">
+        <option value="">None
+        {% for promo_category in promo_categories %}
+          <option value="{{ promo_category.promo_category_id }}">{{ promo_category.name|e}}
+        {% endfor %}
+      </select>
+      <label for="pr_rew_promo_category_quantity">Qty <small>(0 for unlimited)</small>:</label>
+      <input type="text" name="pr_rew_promo_category_quantity" id="pr_rew_promo_category_quantity" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <label for="pr_rew_promo_category_percent">Percent-off:</label>
+      <input type="text" name="pr_rew_promo_category_percent" id="pr_rew_promo_category_percent" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <label for="pr_rew_promo_category_dollar">Dollar-off:</label>
+      <input type="text" name="pr_rew_promo_category_dollar" id="pr_rew_promo_category_dollar" size="10" value="" class="text ui-widget-content ui-corner-all" />
+      <br />
+    </fieldset>
+  </form>
+</div>
+
+</div><!--end content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

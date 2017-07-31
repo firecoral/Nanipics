@@ -1,0 +1,15 @@
+from werkzeug.wrappers import Request, Response
+from p.ErrorLog import log_init, log
+from p.DTemplate import DTemplate
+
+class page:
+    """Display the group_page"""
+
+    def __init__(self, request):
+	t = DTemplate(request, __name__ + '.html')
+	self.resp = Response(t.render(request.args))
+        self.resp.headers['content-type'] = 'text/html'
+        self.resp.headers['content-length'] = len(self.resp.data)
+
+    def response(self):
+	return self.resp

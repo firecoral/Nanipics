@@ -1,0 +1,233 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/shipping_test.html#10 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Test Shipping</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+{% raw %}
+<script id="product_tmpl" type="text/x-jsrender">
+  <div style="display: table-row; text-align:left;">
+    <div style="display: table-cell; width: 450px; padding: 5px 0px;">&nbsp;&nbsp;{{>name}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{lab_product_id_to_shipping_class_name:lab_product_id}}</div>
+    <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;<input type="text" size="5" value="" class="product_quantity shipping_class-{{lab_id_to_shipping_class_id:lab_product_id}}" id="product-{{:product_id}}" data-product_id="{{:product_id}}"></div>
+  </div>
+</script>
+
+<script id="consumer_prices_tmpl" type="text/x-jsrender">
+  <div style="display: table-row; text-align:left;">
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{shipping_name:shipping_id}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{currency:total}}</div>
+  </div>
+</script>
+
+<script id="lab_shipping_tmpl" type="text/x-jsrender">
+  <div style="display: table-row; text-align:left;">
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{lab_shipping_name:lab_shipping_id}}</div>
+    <div style="display: table-cell; width: 350px; padding: 5px 0px;">&nbsp;&nbsp;{{shipping_class_name:shipping_class_id}}</div>
+    <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;{{>quantity}}</div>
+    <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;{{currency:total}}</div>
+  </div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+$.views.converters({
+  currency: function(value) {
+    if (!value)
+      value = 0;
+    return "$ " + value.toFixed(2);
+  },
+  lab_id_to_shipping_class_id: function(value) {
+    return lab_products[value].shipping_class_id;
+  },
+  lab_product_id_to_shipping_class_name: function(value) {
+    return shipping_classes[lab_products[value].shipping_class_id].name;
+  },
+  shipping_class_name: function(value) {
+    return shipping_classes[value].name;
+  },
+  lab_shipping_name: function(value) {
+    return lab_shippings[value].name;
+  },
+  shipping_name: function(value) {
+    return shippings[value].name;
+  }
+});
+
+var products = {{ products }};
+var shipping_classes = {{ shipping_classes }};
+var lab_products = {{ lab_products }};
+var lab_shippings = {{ lab_shippings }};
+var shippings = {{ shippings }};
+
+function ping() {
+  DPAjax(
+    "/s/ajax",
+    { command: 'ping' },
+    function (data) {},         // do nothing if successful
+    function (data) {
+      if (data.unavailable)
+        jError(data.Error);
+      else if (data.Error)
+        window.location.replace('/s/login');
+    }
+  );
+}
+
+$(document).ready( function() {
+  ping();
+
+  $("#done").button();
+  $(".test").button();
+  $(".reset").button();
+
+  $(".test").on('click', function () {
+    var totals = {};
+    $.each(shipping_classes, function (i, shipping_class) {
+       var shipping_class_id = shipping_class.shipping_class_id;
+       totals[shipping_class_id] = 0;
+       $('.shipping_class-' + shipping_class_id).each(function(i) {
+         var quant = parseInt($(this).val());
+         if (quant > 0)
+           totals[shipping_class_id] += quant;
+       });
+    });
+    var args = {
+      command: 'shipping_test',
+      shipping_classes: totals
+    };
+    DPAjax(
+      "/s/ajax_lab_product",
+      args,
+      function (data) {
+        $("#consumer_prices").html($('#consumer_prices_tmpl').render(data.shipping_totals));
+        $("#lab_shipping_prices").html($('#lab_shipping_tmpl').render(data.lab_shipping_totals));
+        $("#dialog-form").dialog("open");
+        document.body.style.cursor = 'auto';
+      }
+    );
+    return false;
+  });
+  $(".reset").on('click', function () {
+    $('.product_quantity').val("");
+    return false;
+  });
+
+  $("#dialog-form").dialog({
+			autoOpen: false,
+			height: 'auto',
+			width: 1000,
+			modal: true,
+			buttons: {
+				Done: function() {
+                                  $(this).dialog("close");
+				}
+			}
+  });
+
+  document.body.style.cursor = 'wait';
+  $.each(products, function (i, product) {
+    $("#product_list").append($('#product_tmpl').render(product));
+  });
+  document.body.style.cursor = 'auto';
+  $(window).unload(function() {});
+});
+
+
+</script>
+
+</head>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table align="center" width="1000">
+<tr><td>
+
+<div id="procontentbox">
+
+<table width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td valign="bottom" style="text-align:left;"><span class="proheader">Test Shipping</span></td>
+    <td valign="bottom" style="text-align:right;">
+      <div align="right">
+      <input type="button" id="done" value="Back" onClick="history.back();return false;" />
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top"><hr /></td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:center;">
+      <div align="center">
+        <button class="test">Test</button>
+        <button class="reset">Reset</button>
+      </div>
+      <br />
+      <table width="875" border="0" cellspacing="0" cellpadding="3" style="text-align:left;" align="center">
+        <tr>
+          <td style="border:1px dotted #dcdcdd;padding:10px;">
+            <div class="ui-widget-header">
+              <div style="display: table-row; text-align:left; height: 25px;">			
+                <div style="display: table-cell; width: 450px; padding: 5px 0px;">&nbsp;&nbsp;Product</div>
+                <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Shipping Class</div>
+                <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;Quantity</div>
+              </div>
+            </div>
+            <div id="product_list" class="ui-widget-content"></div>
+          </td>
+        </tr>
+      </table>
+      <br /><br />
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:center;">
+      <div align="center">
+        <button class="test">Test</button>
+        <button class="reset">Reset</button>
+     </div>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+</td></tr></table>
+
+<br />
+
+<div id="dialog-form" title="Test Shipping (to California)" style="display: none;">
+  <div class="ui-widget-header">
+    <div style="display: table-row; text-align:left;">
+      <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Consumer Shipping Name</div>
+      <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Consumer Price</div>
+    </div>
+  </div>
+  <div id="consumer_prices"></div><br /><br />
+  <div class="ui-widget-header">
+    <div style="display: table-row; text-align:left;">
+      <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Lab Shipping Name</div>
+      <div style="display: table-cell; width: 350px; padding: 5px 0px;">&nbsp;&nbsp;Shipping Class</div>
+      <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;Quantity</div>
+      <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;Cost</div>
+    </div>
+  </div>
+  <div id="lab_shipping_prices"></div><br />
+</div>
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

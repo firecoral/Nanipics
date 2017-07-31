@@ -1,0 +1,32 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/error.html#4 $ --->
+<head><title>Support Error</title>
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link rel=stylesheet type="text/css" href="/css/support.css">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+<body>
+
+<div>
+Support Error
+<br />
+<br />
+{{ message }}
+</div>
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

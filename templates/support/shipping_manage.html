@@ -1,0 +1,239 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/shipping_manage.html#8 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Manage Shipping</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+{% raw %}
+<script id="shipping_cost_tmpl" type="text/x-jsrender">
+  <div style="display: table-cell; width: 200px; padding: 5px 0px;">&nbsp;&nbsp;{{consumer_shipping_name:lab_shipping_id}}</div>
+  <div style="display: table-cell; width: 200px; padding: 5px 0px;">&nbsp;&nbsp;{{lab_shipping_name:lab_shipping_id}}</div>
+  <div style="display: table-cell; width: 100px; padding: 5px 0px;">&nbsp;&nbsp;{{>first_units}}</div>
+  <div style="display: table-cell; width: 100px; padding: 5px 0px;">&nbsp;&nbsp;{{currency:first_set}}</div>
+  <div style="display: table-cell; width: 100px; padding: 5px 0px;">&nbsp;&nbsp;{{>addl_units}}</div>
+  <div style="display: table-cell; width: 100px; padding: 5px 0px;">&nbsp;&nbsp;{{currency:addl_set}}</div>
+  <div class="edit clickable" style="display: table-cell; text-align:center; width: 35px;"><small>edit</small></div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+var labs = {{ labs }};
+var shipping_classes = {{ shipping_classes }};
+var shippings = {{ shippings }};
+var lab_shippings = {{ lab_shippings }};
+var shipping_costs = {{ shipping_costs }};
+
+$.views.converters({
+  currency: function(value) {
+    if (!value)
+      value = 0;
+    return "$ " + value.toFixed(2);
+  },
+  lab_shipping_name: function(value) {
+    if (!value)
+      return "";
+    else
+      return lab_shippings[value].name;
+  },
+  consumer_shipping_name: function(value) {
+    if (!value)
+      return "";
+    else
+      return shippings[lab_shippings[value].shipping_id].name;
+  },
+  lab: function(value) {
+    if (!value)
+      return "";
+    else
+      return labs[value].name;
+  }
+
+});
+
+function ping() {
+  DPAjax(
+    "/s/ajax",
+    { command: 'ping' },
+    function (data) {},         // do nothing if successful
+    function (data) {
+      if (data.unavailable)
+        jError(data.Error);
+      else if (data.Error)
+        window.location.replace('/s/login');
+    }
+  );
+}
+
+function shipping_cost_update(args) {
+  args.command = 'shipping_cost_edit';
+  DPAjax(
+    "/s/ajax_lab_product",
+    args,
+    function (data) {
+      shipping_cost_id = data.shipping_cost.shipping_cost_id;
+      shipping_costs[shipping_cost_id] = data.shipping_cost;
+      $('div[data-shipping_cost_id="' + shipping_cost_id + '"]').html($('#shipping_cost_tmpl').render(data.shipping_cost));
+      document.body.style.cursor = 'auto';
+    }
+  );
+};
+
+function dialog_submit(dialog) {
+  var first_units = $('#sc_first_units').val();
+  if (first_units <= 0) {
+    jError("Error: Units must be a positive number");
+    return;
+  }
+  var first_set = $('#sc_first_price').val();
+  if (first_set <= 0) {
+    jError("Error: Please provide a positive price.");
+    return;
+  }
+  var addl_units = $('#sc_addl_units').val();
+  if (addl_units <= 0) {
+    jError("Error: Units must be a positive number");
+    return;
+  }
+  var addl_set = $('#sc_addl_price').val();
+  if (addl_set <= 0) {
+    jError("Error: Please provide a positive price.");
+    return;
+  }
+  var shipping_cost_id = $("#dialog-form").data('shipping_cost_id');
+  var args = {
+    first_units: first_units,
+    first_set: first_set,
+    addl_units: addl_units,
+    addl_set: addl_set,
+    shipping_cost_id: shipping_cost_id
+  };
+  shipping_cost_update(args);
+  $(dialog).dialog("close");
+};
+
+$(document).ready( function() {
+  ping();
+  $("#shipping_test").button();
+  $("#shipping_test").click(function(e) {
+    window.location = "/s/shipping_test";
+  });
+
+  $.each(shipping_costs, function (i, shipping_cost) {
+    $('div[data-shipping_cost_id="' + shipping_cost.shipping_cost_id + '"]').html($('#shipping_cost_tmpl').render(shipping_cost));
+  });
+  $(document).on('click', ".edit", function() {
+    var shipping_cost_id = $(this).parent('div').attr('data-shipping_cost_id');
+    var shipping_cost = shipping_costs[shipping_cost_id];
+    $('#sc_lab').html(labs[lab_shippings[shipping_cost.lab_shipping_id].lab_id].name);
+    $('#sc_shipping_class').html(shipping_classes[shipping_cost.shipping_class_id].name);
+    $('#sc_lab_shipping_name').html(lab_shippings[shipping_cost.lab_shipping_id].name);
+    $('#sc_first_units').val(shipping_cost.first_units);
+    $('#sc_first_price').val(shipping_cost.first_set.toFixed(2));
+    $('#sc_addl_units').val(shipping_cost.addl_units);
+    $('#sc_addl_price').val(shipping_cost.addl_set.toFixed(2));
+    $("#dialog-form").data('shipping_cost_id', shipping_cost_id);
+    $("#dialog-form").dialog("open");
+  });
+
+  $("#dialog-form").dialog({
+			autoOpen: false,
+			height: 'auto',
+			width: 1000,
+			modal: true,
+			buttons: {
+				Save: function() {
+				  dialog_submit(this);
+				},
+				Cancel: function() {
+                                  $(this).dialog("close");
+				}
+			}
+  });
+
+  $("#done").button();
+  $(window).unload(function() {});
+});
+
+
+</script>
+</head>
+<body>
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content"> 
+
+<div class="content-header">
+	<div class="content-header-h1">Manage Shipping</div>
+    <div class="content-header-btn"><input type="button" id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+
+<div align="center"><input type="button" id="shipping_test" value="Test Shipping"/></div><br />
+
+      <table width="875" border="0" cellspacing="0" cellpadding="3" style="text-align:left; line-height: 1.7em;" align="center">
+        <tr>
+          <td style="border:1px dotted #dcdcdd; padding:10px; background-color: #FFF;">
+            {% for lab in lab_hier %}
+              <div class="ui-widget-header">
+                <b>Lab: </b>{{ lab.name }}<br />
+              </div>
+              {% for sc in lab.shipping_classes %}
+                <div class="ui-widget-header">
+                  <b>Shipping Class: </b>{{ sc.name }}
+                </div>
+                <div style="display: table-row; text-align:left; height: 25px;">
+                  <div style="display: table-cell; width: 200px; padding: 5px 0px;"><b>&nbsp;&nbsp;Consumer Name</b></div>
+                  <div style="display: table-cell; width: 200px; padding: 5px 0px;"><b>&nbsp;&nbsp;Lab Name</b></div>
+                  <div style="display: table-cell; width: 100px; padding: 5px 0px;"><b>&nbsp;&nbsp;First Unit</b></div>
+                  <div style="display: table-cell; width: 100px; padding: 5px 0px;"><b>&nbsp;&nbsp;First Set</b></div>
+                  <div style="display: table-cell; width: 100px; padding: 5px 0px;"><b>&nbsp;&nbsp;Add'l Unit</b></div>
+                  <div style="display: table-cell; width: 100px; padding: 5px 0px;"><b>&nbsp;&nbsp;Add'l Set</b></div>
+                  <div style="display: table-cell; text-align:center; width: 35px;"></div>
+                </div>
+                {% for cost in sc.shipping_costs %}
+                  <div data-shipping_cost_id='{{ cost.shipping_cost_id }}' style="display: table-row; text-align:left; height: 25px;">
+                  </div>
+                {% endfor %}
+              {% endfor %}
+            {% endfor %}
+          </td>
+        </tr>
+      </table>
+
+
+<div id="dialog-form" title="Edit Shipping Cost" style="display: none;">
+  <form id="lab_product_dialog">
+    <label for="sc_lab">Lab: </label><span id="sc_lab"></span><br />
+    <label for="sc_shipping_class">Shipping Class: </label><span id="sc_shipping_class"></span><br />
+    <label for="sc_lab_shipping_name">Lab Shipping Name: </label><span id="sc_lab_shipping_name"></span><br /><br />
+    <label for="sc_first_units">First Units:</label>
+    <input type="text" name="sc_first_units" id="sc_first_units" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="sc_first_price">First Price:</label>
+    <input type="text" name="sc_first_price" id="sc_first_price" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="sc_first_units">Additional Units:</label>
+    <input type="text" name="sc_addl_units" id="sc_addl_units" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="sc_first_price">Additional Price:</label>
+    <input type="text" name="sc_addl_price" id="sc_addl_price" size="10" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+  </form>
+</div>
+
+</div><!--END content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

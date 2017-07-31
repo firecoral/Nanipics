@@ -1,0 +1,230 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Create and Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas!" /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="image/x-icon" href="/favicon.ico" rel="shortcut icon">
+<link rel="apple-touch-icon-precomposed" sizes="114×114" href="/icons/apple-touch-icon-114x114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72×72" href="/icons/apple-touch-icon-72×72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="/icons/touch-icon-iphone-precomposed.png">
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/fs/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/fs/css/splash.css" />
+<link type="text/css" href="/fs/css/superfish.css" media="screen" rel="stylesheet">
+
+<script type="text/javascript" src="<!--#echo var="jquery" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_ui" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_json" -->"></script>
+<script type="text/javascript" src="/js/jquery.cycle.all.latest.js"></script>
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+<script type="text/javascript">
+
+if (document.location.protocol == "https:")
+    document.location.replace("http://" + document.location.hostname + document.location.pathname);
+
+$(document).ready(function() {
+  $('button').button();
+  $('#nav2').menu({position: {at: 'left bottom'}});
+  $('.slideshow').cycle({
+    speed: '1500',
+    fx: 'fade'
+  });
+  $('ul.sf-menu').superfish();
+  $(window).unload(function() {});
+});
+
+</script>
+
+
+
+<script type="text/javascript">
+(function() {
+  var form = document.getElementById("mad_mimi_signup_form"),
+      submit = document.getElementById("webform_submit_button"),
+      email = /.+@.+\..+/;
+      
+  form.onsubmit = function(event) {
+    var isValid = validate();
+    if(!isValid) {
+      for(var i = 0; i < form.elements.length; ++i) {
+        var input = form.elements[i];
+        if(input.className.indexOf("required") >= 0) {
+          input.onchange = validate;
+        }
+      }
+      return false;
+    }
+
+    setTimeout(function() {
+      for(var i = 0; i < form.getElementsByTagName("input").length; ++i) {
+        var input = form.getElementsByTagName("input")[i];
+        if(input.getAttribute("type") == "text") {
+          input.value = "";
+        }
+        if(input.id == "signup_email") {
+          input.placeholder = "you@example.com";
+        } else {
+          input.placeholder = "";
+        }
+      }
+    }, 3000);
+  };
+  
+  function validate() {
+    var isValid = true;
+    
+    for(var i = 0; i < form.elements.length; ++i) {
+      var input = form.elements[i],
+          allDivs = input.parentNode.getElementsByTagName("div");
+
+      if(input.className.indexOf("required") >= 0) {
+        if(input.id == "signup_email") {
+          if(!email.test(input.value)) {
+            emailErrorMessage(input, allDivs);
+            isValid = false;
+          } else {
+            removeErrorMessage(input, allDivs);
+          }
+        } else {
+          if((input.type == "checkbox" && !input.checked) || input.value == "" || input.value == "-1") {
+            fieldErrorMessage(input, allDivs);
+            isValid = false;
+          } else {
+            removeErrorMessage(input, allDivs);
+          }
+        }
+      }
+    }
+    
+    form.className = isValid ? "" : "mimi_invalid";
+    submit.value = isValid ? submit.getAttribute("data-default-text") : submit.getAttribute("data-invalid-text");
+		submit.disabled = !isValid;
+		submit.className = isValid ? "submit" : "disabled";
+    
+    return isValid;
+  }
+
+  function emailErrorMessage(input, allDivs) {
+    input.className = "required invalid";
+    input.placeholder = input.getAttribute("data-required-message") || "This field is required";
+  }
+
+  function fieldErrorMessage(input, allDivs) {
+    input.className = "required invalid";
+    input.placeholder = input.getAttribute("data-required-message") || "This field is required";
+  }
+
+  function removeErrorMessage(input, allDivs) {
+    input.className = "required";
+  }
+})();
+</script>
+
+<meta name="p:domain_verify" content="22c69db37d56f3db9c548bd82dab5498"/>
+</head>
+
+<body>
+
+<!--#include virtual="/i/tracking.html" --> 
+
+<div id="header"><div class="header-c">
+	<div id="top_head">
+    	<!--Sign In  &middot;  My Account  &middot;  --><a href="/e/shopping_cart">
+        <img src="/i/shopping-cart-icon.png"> Shopping Cart</a></div>
+		<div id="logo"><a href="#" ><img src="/fs/i/logo.jpg"></a></div>
+		<!--#include file="menu.shtml" --> 
+</div><!--END header-c--></div><!--END header-->
+
+<a href="/fs/introducing_nanipics.shtml">
+<div id="promo_img">
+	<div class="promo_content">
+	<div class="pi_l"><small>Click Here for</small><br />INCREDIBLE<br />SPECIALS!</div>
+    <div class="pi_m">Introducing NaniPics</div>
+    <div class="pi_r">Home Decor, <br />Prints, &amp; More...</div>
+    </div><!--END promo_content-->
+</div><!--END promo_img-->
+</a>
+
+<br />
+<!--<div id="promo_txt">Get FREE SHIPPING for all orders over $25.</div><!--END promo-->
+
+
+<div id="container">    
+
+<!--#include file="promotions.shtml" --> 
+
+<div class="special_offers">
+	<form action="https://madmimi.com/signups/subscribe/90059" id="mad_mimi_signup_form" method="post" target="_blank">
+    <img src="/fs/i/line-1.jpg" align="absmiddle">
+	GET SPECIAL OFFERS&nbsp;&nbsp;
+	<input class="required" data-invalid-message="This field is invalid" data-required-message="This field is required" id="signup_email" name="signup[email]" placeholder="Enter Your Email" type="text"/>&nbsp;&nbsp;
+	<span style="font-size: 0.7em;"><input class="submit" data-default-text="Sign up!" data-invalid-text="&#8593; You forgot some required fields" data-submitting-text="Sending..." id="webform_submit_button" name="commit" type="submit" value="Sign up!"/></span>
+	<img src="/fs/i/line-1.jpg" align="absmiddle">
+    </form>
+    
+    
+</div><!--END special_offers-->
+
+
+<div id="col_3">
+<div class="col1">
+	  
+	  <div class="col3_h1">Send Your Greetings</div>
+	    <div align="center">
+	    <div class="col_img"><a href="/e/nts?ntp_id=9"><img src="/fs/i/card-col-img.png"></a></div>
+	    </div>
+	  
+	    <div class="col_3_txt">
+	    Send personalized greetings to friends and family for every occasion with our Photo Greeting Cards.<br />
+	    <a href="/e/nts?ntp_id=9">Shop Greeting Cards ></a>
+	    </div>
+    
+
+</div><!--END col1-->
+<div class="col2">
+    
+    <div class="col3_h1">Decorate Your Home in Style</div>
+    <div align="center">
+    <div class="col_img"><a href="/e/nts?ntp_id=11"><img src="fs/i/canvas-col-img.jpg"></a></div>
+    </div>
+
+    <div class="col_3_txt">
+    Turn your family photos into beautiful pieces of art by creating Photo Canvases, Bamboo Mounted Prints, and more...<br />
+    <a href="/e/nts?ntp_id=11">Shop Home Decor ></a>
+    </div>
+</div><!--end col2-->
+
+<div class="col3">
+
+    <div class="col3_h1">Photo Gifts for Everyone!</a></div>
+      <div align="center">
+      <div class="col_img"><a href="/e/nts?ntp_id=12"><img src="fs/i/photo-gifts-col-img.png"></a></div>
+      </div>
+      
+      <div class="col_3_txt">
+      Share your favorite photos by turning them into fabulous photo gifts!<br />
+      <a href="/e/nts?ntp_id=12">Shop Photo Gifts ></a>
+    </div>
+    
+    
+
+</div><!--END col3-->
+</div><!--END col_3-->
+
+
+
+<br /><br /><br /><br /><br />
+</div><!--END container-->
+
+<!--#include file="subscribe_footer.shtml" --> 
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

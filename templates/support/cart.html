@@ -1,0 +1,781 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/cart.html#40 $ --->
+<head><title>Cart</title>
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link rel=stylesheet type="text/css" href="/css/support.css">
+<link type="text/css" href="/css/fileupload.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/date.format.js"></script>
+<script type="text/javascript" src="/js/FileUpload.js"></script>
+<script type="text/javascript" src="/js/fu/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/js/fu/jquery.fileupload.js"></script>
+
+<style>
+#replace_dialog td { vertical-align: middle; text-align: center; }
+</style>
+{#
+  The cart is pretty much completely written to use jsrender
+  so that updates are clearly shown when navigating around
+  the page.  Only persistent information uses jinja2.
+#}
+
+{% raw %}
+<script id="addr_tmpl" type="text/x-jsrender">
+	<div class="bill-to">
+    <b>Bill To:</b><br />
+    {{:bill_first_name}} {{:bill_last_name}}<br />
+    {{if bill_company_name}}
+      {{:bill_company_name}}<br />
+    {{/if}}
+    {{:bill_address1}}<br />
+    {{if bill_address2}}
+      {{:bill_address2}}<br />
+    {{/if}}
+    {{:bill_city}},
+    {{if bill_state_id}}
+      {{:bill_state_id}}<br />
+    {{/if}}
+    {{if bill_province}}
+      {{:bill_province}}<br />
+    {{/if}}
+    {{:bill_postal_code}}<br />
+    {{if email}}
+      {{:email}}<br />
+    {{/if}}
+    {{if phone}}
+      {{:phone}}<br />
+    {{/if}}
+	</div>
+
+	<div class="ship-to">
+    <b>Ship To:</b><br />
+    {{:ship_first_name}} {{:ship_last_name}}<br />
+    {{if ship_company_name}}
+      {{:ship_company_name}}<br />
+    {{/if}}
+    {{:ship_address1}}<br />
+    {{if ship_address2}}
+      {{:ship_address2}}<br />
+    {{/if}}
+    {{:ship_city}},
+    {{if ship_state_id}}
+      {{:ship_state_id}}<br />
+    {{/if}}
+    {{if ship_province}}
+      {{:ship_province}}<br />
+    {{/if}}
+    {{:ship_postal_code}}<br />
+	</div>
+</script>
+
+<script id="info_tmpl" type="text/x-jsrender">
+  Order Number: {{>cart_id }} <br />
+  Access Id: {{>access_id }} <br />
+  Create Date: {{datetime:create_date }} <br />
+  Submit Date: {{datetime:submit_date }} <br />
+  Complete Date: {{datetime:complete_date }} <br />
+  Transaction Id: {{>transaction_id }} <br />
+</script>
+
+<script id="status_tmpl" type="text/x-jsrender">
+  <b>Order Status:</b> {{>cart_status.name}}
+  {{if cart_status.cancelable }}
+    <br /><span class="cancel clickable">(cancel)</span>
+  {{/if}}
+  {{if manual_hold }}
+    <br /><b>Manual Hold:</b> {{>manual_hold}} <span class="manual_unhold clickable">(release)</span>
+  {{else}}
+    {{if cart_status.manual_hold }}
+      <br /><span class="manual_hold clickable">(manual hold)</span>
+    {{/if}}
+  {{/if}}
+  {{if cart_status.attachable }}
+    <br /><span class="attach clickable">(attach order)</span>
+  {{/if}}
+    <br /><span class="clone clickable">(clone cart)</span>
+  {{if cart_status.confirmation_email_resend }}
+    <br /><span class="resend_confirmation clickable">(resend confirmation email)</span>
+  {{/if}}
+  {{if cart_status.complete_email_resend }}
+    <br /><span class="resend_complete clickable">(resend complete email)</span>
+  {{/if}}
+</script>
+
+<script id="finance_tmpl" type="text/x-jsrender">
+  <tr>
+    <td colspan="2">
+    <strong>Subtotal:</strong> {{currency:prod_cost}}<br />
+    </td>
+  </tr>
+  {{if prod_credit != 0}}
+    <tr>
+      <td colspan="2">
+      <strong>&nbsp;&nbsp;Promo Credit({{>promo_id}}):</strong> {{currency:prod_credit}}<br />
+      </td>
+    </tr>
+  {{/if}}
+  <tr>
+    <td colspan="2">
+     <strong>{{shipping:shipping_id}}:</strong> {{currency:shipping_cost}}<br />
+    </td>
+  </tr>
+  {{if shipping_credit != 0}}
+    <tr>
+      <td colspan="2">
+      <strong>&nbsp;&nbsp;Shipping Credit:</strong> {{currency:shipping_credit}}<br />
+      </td>
+    </tr>
+  {{/if}}
+  <tr>
+    <td colspan="2">
+     <strong>{{tax:state_id}}:</strong> {{currency:tax_cost}}<br />
+    </td>
+  </tr>
+  {{if discount_cost != 0}}
+    <tr>
+      <td colspan="2">
+       <strong>Discount:</strong> <span style="color: #f00">{{currency:discount_cost}}</span><br />
+      </td>
+    </tr>
+  {{/if}}
+  <tr>
+    <td colspan="2">
+     <strong>Total:</strong> {{currency:total_cost}}
+     <br />
+    </td>
+  </tr>
+  {{if ~card_num}}
+    <tr>
+      <td colspan="2">
+       <strong>Credit Card:</strong> *{{>~card_num}}<br />
+      </td>
+    </tr>
+  {{/if}}
+</script>
+
+<script id="line_item_tmpl" type="text/x-jsrender">
+  <tr class="line_item">
+    <td>line_item_id: {{>line_item_id}}</td>
+    <td>{{currency:price}} X {{>quantity}} = {{currency:(price * quantity)}}</td>
+  </tr>
+  <tr class="line_item">
+    <td>
+      <img src='/e/p?a={{>build_access_id}}&s=1&w=160&h=160&t=ff&r={{>build_revision}}'>
+    </td>
+    <td>
+      {{>product.name}}<br />
+    </td>
+  </tr>
+</script>
+
+<script id="line_item_review_tmpl" type="text/x-jsrender">
+  <tr class="line_item" data-build_access_id="{{>build_access_id}}">>
+    <td>
+      {{>line_item_id}} {{>product.name}} {{currency:(price * quantity)}}<br />
+      {{for ~seq_range(page_count)}}
+        page {{>#index}}:<br />
+        <img src='/e/p?a={{>#parent.parent.data.build_access_id}}&s={{:#data}}&w=600&h=600&t=ff&r={{>#parent.parent.data.build_revision}}'><br />
+      {{/for}}
+    </td>
+  </tr>
+</script>
+
+<script id="logs_tmpl" type="text/x-jsrender">
+  {{datetime:create_date}}
+  {{if server }}
+    ({{>server}})
+  {{/if}}
+  {{if actor }}
+    ({{>actor}})
+  {{/if}}
+  {{>log}}<br />
+</script>
+
+<script id="jobs_tmpl" type="text/x-jsrender">
+  #{{>job_id}} {{>job_status.name}}<br />
+  {{>lab_name}} - {{>lab_line_name}}<br />
+  Created: {{datetime:create_date}}<br />
+  {{if submit_date }}
+    Submitted: {{datetime:submit_date}}<br />
+  {{/if}}
+  {{if complete_date }}
+    Completed: {{datetime:complete_date}}<br />
+  {{/if}}
+  {{if tracking_data}}
+    {{>tracking_data.vendor}} {{>tracking_data.service}}
+    {{if tracking_data.url}}
+      <a href="{{>tracking_data.url}}">{{>tracking_data.tracking}}</a>
+    {{else}}
+      {{>tracking_data.tracking}}
+    {{/if}}
+    <br />
+  {{/if}}
+  {{for job_items}}
+    {{>line_item_id}} {{>quantity}} {{>product_name}}
+    {{if design_name}}
+      - {{>design_name}}
+    {{/if}}
+    <br />
+  {{/for}}
+  <br />
+</script>
+
+<script id="images_tmpl" type="text/x-jsrender">
+    <img class="image_thumb" src="/a/{{>thumb_asset_id}}" data-image_index="{{>#index}}">&nbsp;
+</script>
+
+<script id="replace_tmpl" type="text/x-jsrender">
+  <table id="replace_dialog" border="1">
+    <tr>
+      <td>
+        Original
+      </td>
+      <td>
+        Replacement
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <img src="/a/{{>thumb_asset_id}}">
+      </td>
+      <td id="replace_asset">
+        {{if replace_asset_id}}
+          <img src="/a/{{>replace_asset_id}}">
+        {{/if}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="/A/{{>full_asset_id}}" target="_blank">
+          download
+        </a>
+      </td>
+      <td>
+        <span class="clickable" id="upload-button">Upload Replacement</span>
+      </td>
+    </tr>
+  </table>
+</script>
+
+{% endraw %}
+
+<script type="text/javascript">
+
+var taxes = {{ taxes_json }};
+var shippings = {{ shippings_json }};
+
+$.views.converters({
+  currency: function(value) {
+    return "$ " + value.toFixed(2);
+  },
+  datetime: function(date8601) {
+    // Probably won't work on old browsers:  see https://github.com/csnover/js-iso8601/
+    if (!date8601)
+      return "";
+    date = new Date(date8601)
+    return date.format();
+  },
+  tax: function(state_id) {
+    for (i = 0; i < taxes.length; i++) {
+      tax = taxes[i];
+      if (tax.state_id == state_id)
+        return tax.tax_name;
+    }
+    return "Tax";
+  },
+  shipping: function(shipping_id) {
+    for (i = 0; i < shippings.length; i++) {
+      shipping = shippings[i];
+      if (shipping.shipping_id == shipping_id)
+        return shipping.name;
+    }
+    return "Unknown Shipping";
+  }
+});
+
+$.views.helpers({
+  seq_range: function(max) {
+    var ints = [];
+    for (var i = 1; i <= max; i++)
+      ints.push(i);
+    return ints;
+  }
+});
+
+var cart_id = {{ cart_id }};
+var next_cart_id = 0;
+var cart;
+var cart_logs;
+var cart_jobs;
+var cart_images;
+
+function attach(reason) {
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: 'attach',
+      cart_id: cart_id
+    },
+    function (data) {
+      window.location = '/e/shopping_cart';
+    },
+    function (data) {
+      jError(data.Error);
+    }
+  );
+}
+
+function clone(reason) {
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: 'clone',
+      cart_id: cart_id
+    },
+    function (data) {
+      window.location = '/e/shopping_cart';
+    },
+    function (data) {
+      jError(data.Error);
+    }
+  );
+}
+
+function manual_hold(reason) {
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: 'manual_hold',
+      cart_id: cart_id,
+      reason: reason
+    },
+    function (data) {
+      cart.manual_hold = data.manual_hold;
+      cart_logs = data.cart_logs;
+      cart_info_refresh();
+      cart_status_refresh();
+      cart_log_refresh();
+    },
+    function (data) {
+      jError(data.Error);
+    }
+  );
+}
+
+function new_log_entry(entry) {
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: 'log_entry',
+      cart_id: cart_id,
+      entry: entry
+    },
+    function (data) {
+      cart_logs = data.cart_logs;
+      cart_log_refresh();
+    },
+    function (data) {
+      jError(data.Error);
+    }
+  );
+}
+
+function cancel(reason) {
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: 'cancel',
+      cart_id: cart_id,
+      reason: reason
+    },
+    function (data) {
+      cart.cart_status = data.cart_status;
+      cart.manual_hold = null;
+      cart_logs = data.cart_logs;
+      cart_info_refresh();
+      cart_status_refresh();
+      cart_log_refresh();
+    },
+    function (data) {
+      jError(data.Error);
+    }
+  );
+}
+
+function email_resend(type, email) {
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: type,
+      cart_id: cart_id,
+      email: email
+    },
+    function (data) {
+      if (cart.address.email != email) {
+        cart.address.email = email;
+        cart_address_refresh();
+      }
+      cart_logs = data.cart_logs;
+      cart_log_refresh();
+    },
+    function (data) {
+      jError(data.Error);
+    }
+  );
+}
+
+function cart_info_refresh() {
+  $("#cart_info").html($('#info_tmpl').render(cart));
+}
+
+function cart_status_refresh() {
+  $("#cart_status").html($('#status_tmpl').render(cart));
+}
+
+function cart_address_refresh() {
+  $("#address").html($('#addr_tmpl').render(cart.address));
+}
+
+function cart_finance_refresh() {
+  $("#cart_finance").siblings().remove();
+  $("#cart_finance").after($('#finance_tmpl').render(cart.finance, {card_num: cart.card_num }));
+}
+
+function cart_line_item_refresh() {
+  $(".line_item").remove();
+  if ($("#review").is(':checked')) {
+    $("#cart_line_items").append($('#line_item_review_tmpl').render(cart.line_items));
+  }
+  else
+    $("#cart_line_items").append($('#line_item_tmpl').render(cart.line_items));
+}
+
+function cart_images_refresh() {
+  $(".image_thumb").remove();
+  if ($("#review").is(':checked')) {
+    $('#image_list').append($('#images_tmpl').render(cart_images));
+  }
+}
+
+function cart_log_refresh() {
+  $("#cart_logs").html($('#logs_tmpl').render(cart_logs));
+}
+
+function cart_jobs_refresh() {
+  $("#cart_jobs").html($('#jobs_tmpl').render(cart_jobs));
+}
+
+function release_cart() {
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: 'release',
+      cart_id: cart_id
+    },
+    function (data) {
+      if (next_cart_id > 0)
+        window.location.replace('/s/cart?cart_id=' + next_cart_id + '&review=1');
+      else
+        window.history.back();
+    },
+    function (data) {
+      if (data.unavailable)
+        window.location.replace('/s/login');
+      else if (data.Error)
+        jError(data.Error);
+    }
+  );
+}
+
+$(document).ready(function() {
+  $("#done").button();
+  $("#release_cart").button();
+  $("#next_cart").button();
+  $("#review").prop('checked', {{ review }});
+  if ({{ review }}) {
+    $("#cart_release").show();
+  }
+  else {
+    $("#cart_release").hide();
+  }
+  $(document).on('click', "#next_cart", function() {
+    window.location.replace('/s/cart?cart_id=' + next_cart_id + '&review=1');
+  });
+  $("#dialog-form").dialog({
+    autoOpen: false,
+    height: 'auto',
+    width: 700,
+    modal: false,
+    buttons: {
+      Done: function() {
+        $(this).dialog("close");
+      }
+    }
+  });
+
+  $(document).on('click', ".image_thumb", function() {
+    var image_index = $(this).attr('data-image_index');
+    var image = cart_images[image_index];
+    //$("#dialog-form").data('support_id', support_id);
+    $("#dialog-form").html($('#replace_tmpl').render(image));
+
+    {# This has to be done after the HTML is created for the dialog #}
+    $("#upload-button").fileuploader({
+      title: "Upload Replacement Image",
+      url: '/s/ajax_cart',
+      formData: {
+        image_id: image.image_id,
+        cart_id: cart_id                {# Needed by ajax_cart, but not used by this #}
+      },
+      message: 'Upload a replacement image with the same dimensions<br /><br />',
+      done: function (e, element, result) {
+        if (result.replace_asset_id) {
+          $('#replace_asset').html('<img src="/a/' + result.replace_asset_id + '">');
+          image.replace_asset_id = result.replace_asset_id;
+          {# Redisplay all the line_items image designs that have a changed image #}
+          builds = result.builds;
+          for (i = 0; i < builds.length; i++) {
+            build = builds[i];
+            build_access_id = build.build_access_id;
+            revision = build.revision;
+            line_items = cart.line_items;
+            for (j = 0; j < line_items.length; j++) {
+              line_item = line_items[j];
+              if (line_item.build_access_id == build_access_id) {
+                line_item.build_revision = revision;
+                $('tr[data-build_access_id=' + build_access_id +']').replaceWith($('#line_item_review_tmpl').render(line_item));
+              }
+            }
+          }
+          cart_logs = result.cart_logs;
+          cart_log_refresh();
+        }
+      }
+    });
+
+    $("#dialog-form").dialog("open");
+  });
+
+  $(document).on('click', "#release_cart", function() {
+    release_cart();
+  });
+  DPAjax(
+    "/s/ajax_cart",
+    {
+      command: 'get',
+      cart_id: cart_id
+    },
+    function (data) {
+      cart = data.cart;
+      if ({{ review }}) {
+        if ( data.next_cart_id > 0) {
+          next_cart_id = data.next_cart_id;
+          $("#next_cart").button("option", "label", "Skip to cart " + next_cart_id);
+          $("#next_cart").show();
+        }
+        else {
+          next_cart_id = 0;
+          $("#next_cart").button("option", "label", "Skip");
+          $("#next_cart").hide();
+        }
+      }
+      cart.finance.state_id = cart.address.ship_state_id;
+      cart.finance.promo_id = cart.promo_id;
+      cart_logs = data.cart_logs;
+      cart_images = data.cart_images;
+      cart_jobs = data.jobs;
+      cart_info_refresh();
+      cart_status_refresh();
+      cart_finance_refresh();
+      cart_line_item_refresh();
+      cart_log_refresh();
+      cart_address_refresh();
+      cart_jobs_refresh();
+      cart_images_refresh();
+    },
+    function (data) {
+      if (data.unavailable)
+        window.location.replace('/s/login');
+      else if (data.Error)
+        jError(data.Error);
+    }
+  );
+
+  $(document).on('change', '#review', function() {
+    cart_images_refresh();
+    cart_line_item_refresh();
+  });
+
+  $(document).on('click', '.cancel', function() {
+    jPrompt("Reason for canceling cart?", "", "Cancel Cart", function(reason) {
+      if (reason) {
+        cancel(reason);
+      }
+    });
+  });
+
+  $(document).on('click', '.resend_confirmation', function() {
+    jPrompt("Address:", cart.address.email, "Resend Confirmation Email", function(address) {
+      if (address) {
+        email_resend('confirmation_resend_email', address);
+      }
+    });
+  });
+  $(document).on('click', '.resend_complete', function() {
+    jPrompt("Address:", cart.address.email, "Resend Order Complete Email", function(address) {
+      if (address) {
+        email_resend('complete_resend_email', address);
+      }
+    });
+  });
+  $(document).on('click', '.manual_hold', function() {
+    jPrompt("Reason for Manual Hold?", "", "Manual Hold", function(reason) {
+      if (reason) {
+        manual_hold(reason);
+      }
+    });
+  });
+  $(document).on('click', '.manual_unhold', function() {
+      manual_hold("");
+  });
+  $(document).on('click', '.attach', function() {
+      attach("");
+  });
+  $(document).on('click', '.clone', function() {
+      clone("");
+  });
+  $(document).on('click', '.add_log', function() {
+    jPrompt("New Log Entry", "", "Add Log Entry", function(entry) {
+      if (entry) {
+        new_log_entry(entry);
+      }
+    });
+  });
+  $(window).unload(function() {});
+});
+
+</script>
+</head>
+<body>
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content"> 
+
+<div class="content-header">
+	<div class="content-header-h1">Cart Review</div>
+    <div class="content-header-btn"><input type="button" id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+
+<div class="cart-content">
+
+<div id="cart_info" class="cart_info">
+</div><!--END cart_info-->
+
+<div id="cart_status" class="cart_status"></div>
+
+<br />
+
+<table width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+     <td colspan="2" valign="top"><hr /></td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <strong>Addresses</strong>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <div class="c-address" id="address"></div><!--end c-address-->
+    </td>
+  </tr>
+</table>
+
+
+<table width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+     <td colspan="2" valign="top"><hr /></td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <strong>Jobs/Shipments</strong>
+    </td>
+  </tr>
+  <tr>
+    <td id="cart_jobs" colspan="2" valign="top"></td>
+  </tr>
+</table>
+
+
+
+<table id="cart_line_items" width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+     <td colspan="2" valign="top"><hr /></td>
+  </tr>
+  <tr>
+    <td valign="top">
+      Review: <input id="review" type="checkbox">
+    </td>
+  </tr>
+  <tr>
+     <td colspan="2" valign="top"><hr /></td>
+  </tr>
+</table>
+
+
+<table width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td colspan="2" valign="top"><hr /></td>
+  </tr>
+  <tr>
+    <td colspan="2" id="cart_finance" valign="top"></td>
+  </tr>
+</table>
+
+<table id="cart_release" width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td colspan="2" valign="top" style="float: right;">
+      <button id="release_cart">Release to Lab</button><br /><br />
+      <button id="next_cart">Skip</button><br />
+    </td>
+  </tr>
+</table>
+
+<table width="825" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td colspan="2" valign="top"><hr /></td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top"><strong>Images</strong></td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top" id="image_list"></td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top"><hr /></td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top"><strong>Cart History</strong>&nbsp;&nbsp;<small class="add_log clickable">add</small></td>
+  </tr>
+  <tr>
+    <td id="cart_logs" colspan="2" valign="top"></td>
+  </tr>
+</table>
+
+</div><!--cart-content-->
+</div><!--end content-->
+<div id="dialog-form" title="Replace Image" style="display: none;">
+</div>
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

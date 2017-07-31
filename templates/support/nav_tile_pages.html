@@ -1,0 +1,258 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/nav_tile_pages.html#5 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Manage Nav Tile Pages</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+{% raw %}
+<script id="nav_tile_page_tmpl" type="text/x-jsrender">
+  <div id="nav_tile_page-{{:nav_tile_page_id}}" data-nav_tile_page_id="{{:nav_tile_page_id}}" style="display: table-row; text-align:left;">
+    <div style="display: table-cell; width: 20px; padding: 5px 0px;">&nbsp;&nbsp;{{:nav_tile_page_id}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{:name}}</div>
+    <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;{{:top_menu_seq}}</div>
+    <div class="edit clickable" style="display: table-cell; text-align:center; width: 60px;"><small>edit</small></div>
+    <div class="edit_tiles clickable" style="display: table-cell; text-align:center; width: 60px;"><small>edit tiles</small></div>
+    <div class="preview clickable" style="display: table-cell; text-align:center; width: 60px;"><small>preview</small></div>
+    <div style="display: table-cell; text-align:center; width: 30px;"><img class="delete" title="Delete Nav Tile Page" src="/i/red_x_small.png"></div>
+  </div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+var nav_tile_pages = new Object();
+
+function nav_tile_page_update(args) {
+  args.command = 'edit';
+  DPAjax(
+    "/s/ajax_nav_tile",
+    args,
+    function (data) {
+      nav_tile_page_id = data.nav_tile_page.nav_tile_page_id;
+      nav_tile_pages[nav_tile_page_id] = data.nav_tile_page;
+      $("#nav_tile_page-" + nav_tile_page_id).replaceWith($('#nav_tile_page_tmpl').render(data.nav_tile_page));
+      document.body.style.cursor = 'auto';
+    }
+  );
+};
+
+function nav_tile_page_add() {
+  args = {};
+  args.command = 'add';
+  DPAjax(
+    "/s/ajax_nav_tile",
+    args,
+    function (data) {
+      nav_tile_pages[data.nav_tile_page.nav_tile_page_id] = data.nav_tile_page;
+      $("#nav_tile_page_list").append($('#nav_tile_page_tmpl').render(data.nav_tile_page));
+      document.body.style.cursor = 'auto';
+    }
+  );
+  return;
+};
+
+function nav_tile_page_delete(nav_tile_page_id) {
+  var message = "Do you really want to delete this nav tile page along with it's tiles?  It cannot be undone.";
+  jConfirm(message, "Delete Learn More", function (r) {
+    if (r) {
+      var args = {
+	nav_tile_page_id : nav_tile_page_id,
+	command : 'delete'
+      };
+      DPAjax(
+        "/s/ajax_nav_tile",
+	args,
+	function (data) {
+	  $('#nav_tile_page-' + nav_tile_page_id).remove();
+	  delete nav_tile_pages[nav_tile_page_id];
+	  document.body.style.cursor = 'auto';
+	}
+      );
+    }
+  });
+};
+
+function dialog_submit(dialog) {
+  var ntp_name = $('#ntp_name').val();
+  if (!ntp_name) {
+    jError("Error: Please provide a name for this nav tile page.");
+    return;
+  }
+  var nav_tile_page_id = $("#dialog-form").data('nav_tile_page_id');
+  var args = {
+    nav_tile_page_id: nav_tile_page_id,
+    name: ntp_name,
+    menu_name: $('#ntp_menu_name').val(),
+    top_menu_seq: $('#ntp_top_menu_seq').val(),
+    link: $('#ntp_link').val(),
+    splash_html: $('#ntp_splash_html').val(),
+    instr_html: $('#ntp_instr_html').val()
+  };
+  nav_tile_page_update(args);
+  $(dialog).dialog("close");
+};
+
+$(document).ready( function() {
+  $("#done").button();
+  $("#nav_tile_page_add").button();
+  $("#nav_tile_page_add").click(function(e) {
+    nav_tile_page_add();
+  });
+
+  $(document).on('click', ".edit", function() {
+    var nav_tile_page_id = $(this).parent('div').attr('data-nav_tile_page_id');
+    var nav_tile_page = nav_tile_pages[nav_tile_page_id];
+    $('#ntp_name').val(nav_tile_page.name);
+    $('#ntp_menu_name').val(nav_tile_page.menu_name);
+    $('#ntp_top_menu_seq').val(nav_tile_page.top_menu_seq);
+    $('#ntp_link').val('None');         // default
+    $('#ntp_link').val(nav_tile_page.link);
+    $('#ntp_landing_pages').val(nav_tile_page.link);
+    $('#ntp_splash_html').val(nav_tile_page.splash_html);
+    $('#ntp_instr_html').val(nav_tile_page.instr_html);
+    $("#dialog-form").data('nav_tile_page_id', nav_tile_page_id);
+    $("#dialog-form").dialog("open");
+  });
+
+  $(document).on('click', ".delete", function() {
+    var nav_tile_page_id = $(this).parent('div').parent('div').attr('data-nav_tile_page_id');
+    nav_tile_page_delete(nav_tile_page_id);
+  });
+
+  $(document).on('click', ".preview", function() {
+    var nav_tile_page_id = $(this).parent('div').attr('data-nav_tile_page_id');
+    var url = "/e/nts?ntp_id=" + nav_tile_page_id;
+    document.location.href = url;
+  });
+
+  $(document).on('change', "#ntp_landing_pages", function() {
+    $('#ntp_link').val($('#ntp_landing_pages').val())
+  });
+
+  $(document).on('click', ".edit_tiles", function() {
+    var nav_tile_page_id = $(this).parent('div').attr('data-nav_tile_page_id');
+    var url = "/s/nav_tiles?ntp_id=" + nav_tile_page_id;
+    document.location.href = url;
+  });
+
+  $("#dialog-form").dialog({
+    autoOpen: false,
+    height: 'auto',
+    width: 1000,
+    modal: true,
+    buttons: {
+      Save: function() {
+	dialog_submit(this);
+      },
+      Cancel: function() {
+	$(this).dialog("close");
+      }
+    },
+  });
+
+
+  DPAjax(
+    "/s/ajax_nav_tile",
+    {
+      command: 'get'
+    },
+    function (data) {
+      $.each(data.nav_tile_pages, function (i, nav_tile_page) {
+        nav_tile_pages[nav_tile_page.nav_tile_page_id] = nav_tile_page;
+        $("#nav_tile_page_list").append($('#nav_tile_page_tmpl').render(nav_tile_page));
+      });
+      document.body.style.cursor = 'auto';
+    },
+    function (data) {
+      jError("Error: " + data.Error);
+      document.body.style.cursor = 'auto';
+    }
+  );
+  $(window).unload(function() {});
+});
+
+
+</script>
+</head>
+<body>
+
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content">
+
+<div class="content-header">
+	<div class="content-header-h1">Manage Nav Tile Pages</div>
+    <div class="content-header-btn"><input type="button" class='crop_menu_btn' id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+
+<div align="center"><input type="button" id="nav_tile_page_add" value="New Nav Tile Page"/></div><br />
+          
+      <table width="875" border="0" cellspacing="0" cellpadding="3" style="text-align:left;" align="center">
+        <tr>
+          <td style="border:1px dotted #dcdcdd;padding:10px;">			    	
+            <div class="ui-widget-header">
+              <div style="display: table-row; text-align:left;">			
+                  <div style="display: table-cell; width: 20px; padding: 5px 0px;">&nbsp;</div>
+                  <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Name</div>
+                  <div style="display: table-cell; width: 150px; padding: 5px 0px;">&nbsp;&nbsp;Top Menu Seq</div>
+                  <div style="display: table-cell; text-align:center; width: 60px;"></div>
+                  <div style="display: table-cell; text-align:center; width: 60px;"></div>
+                  <div style="display: table-cell; text-align:center; width: 60px;"></div>
+                <div style="display: table-cell; text-align:center; width: 30px;"></div>
+              </div>
+            </div>
+            <div id="nav_tile_page_list" class="ui-widget-content"></div>
+          </td>
+        </tr>
+      </table>
+
+
+<style>
+#ntp_splash_html, #ntp_instr_html { width: 98%; height: 35em; }
+</style>
+<div id="dialog-form" title="Edit Nav Tile Page" style="display: none;">
+  <form id="nav_tile_page_dialog">
+    <div class="ntp_label"><label for="ntp_name">Name:</label></div>
+    <input type="text" name="ntp_name" id="ntp_name" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <div class="ntp_label"><label for="ntp_menu_name">Menu Name:</label></div>
+    <input type="text" name="ntp_menu_name" id="ntp_menu_name" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <div class="ntp_label"><label for="ntp_top_menu_seq">Top Menu Sequence:</label></div>
+    <input type="text" name="ntp_top_menu_seq" id="ntp_top_menu_seq" size="50" value="" class="text ui-widget-content ui-corner-all" /> (leave blank to keep this page off the menu)<br /><br />
+    <div class="ntp_label"><label for="ntp_link">Menu Link:</label></div>
+    <input type="text" name="ntp_link" id="ntp_link" size="50" value="" class="text ui-widget-content ui-corner-all" />
+    <select id="ntp_landing_pages">
+      <option value="">None (hide this tile)
+      {% for landing_page in landing_pages %}
+	<option value="{{ landing_page.url|e }}">{{ landing_page.name|e}}
+      {% endfor %}
+    </select>
+    <br /><br />
+    <div class="ntp_label"><label for="ntp_splash_html">Splash HTML:</label></div>
+    <textarea id="ntp_splash_html" class="text ui-widget-content ui-corner-all" />
+    </textarea><br />
+    <div class="ntp_label"><label for="ntp_instr_html">Instruction HTML:</label></div>
+    <textarea id="ntp_instr_html" class="text ui-widget-content ui-corner-all" />
+    </textarea><br />
+  </form>
+</div>
+
+</div><!--end content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

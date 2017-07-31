@@ -1,0 +1,51 @@
+<div id="splash">
+	<div class="slideshow">
+
+      
+ 		<a href="/e/pi?pi_pgid=29">
+ 		        <div id="splash02" class="coaster_promotion">&nbsp;</div>
+ 				</a>
+ 		
+ 		 		<a href="/e/nts?ntp_id=6">
+ 		        <div id="splash03" class="bamboo_mounted_prints">&nbsp;</div>
+ 				</a>
+ 		
+ 		        <a href="/e/nts?ntp_id=1">
+ 		        <div id="splash04" class="canvases">&nbsp;</div>
+ 				</a>
+ 		
+ 		
+ 		 		<a href="/e/nts?ntp_id=5">
+ 		        <div id="splash05" class="metal_mounted_prints">&nbsp;</div>
+ 				</a>
+ 		
+ 		        
+ 		 		<a href="/e/nts?ntp_id=2">
+ 		        <div id="splash06" class="standout_mounted_prints">&nbsp;</div>
+ 				</a>
+ 		        
+ 		 		<div id="splash07" class="about_nani">
+ 		        	<div class="about_nani_txt">
+ 		        	Over the past decade, we worked exclusively with professional photographers to turn their images into 
+ 		            beautiful (&quot;Nani&quot; in Hawaiian) pictures for their clients. NaniPics now use the technologies and professional 
+ 		            treatments developed over the years to help you to extend your images into beautiful photo memories to enjoy 
+ 		            for years to come.  
+ 		            </div>
+ 		        </div>
+ 			
+ 		           
+ 				<div id="splash08" class="satisfaction">
+ 		        	<div class="satisfaction_txt">
+ 		        	We are proud of the quality of our products and believe your will love and enjoy them for years to come.  
+ 		            <br /><br /><br /><br /><br /><br />
+ 		            However, if you are not satisfied with the products you have received, we will be happy to replace them or 
+ 		            refund your money upon return within 30 days.
+ 		        	<br /><br />        
+ 			            <span class="satisfaction_txt2">The NaniPics Team</span>
+ 		            </div>
+ 		        </div><!--END splash05-->   
+
+	
+	</div><!--END slideshow-->
+</div><!--END splash-->
+<img src="/fs/i/bottom_shadow.png">

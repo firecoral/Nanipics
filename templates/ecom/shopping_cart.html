@@ -1,0 +1,374 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/ecom/shopping_cart.html#55 $ --->
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas Printed By Your own Pro Team at NaniPics. " /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" href="/css/style.css" rel="stylesheet" />
+<link type="text/css" href="/css/product_build.css" rel="stylesheet" />
+<link type="text/css" href="/css/cart.css" rel="stylesheet">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/date.format.js"></script>
+
+{% raw %}
+<script id="line_item_tmpl" type="text/x-jsrender">
+
+<div class="li_row" data-build_access_id="{{>build_access_id}}">
+
+	<div class="li_hdr">
+		<div class="li_hdr_name">{{>name}}</div>
+		<div class="li_hdr_id">Item Details</div>
+		<div class="li_hdr_up">Unit Price</div>
+		<div class="li_hdr_qty">Quantity</div>
+		<div class="li_hdr_price">Price</div>
+	</div><!--END li_hdr-->
+	
+	<div class="li_content">
+		<div class="li_thumb" style="background-image: url('/e/p?a={{>build_access_id}}&s=1&w=360&h=250&t=ff');"></div>
+  		
+		<div class="li_id">
+			{{>name}}<br />
+		</div><!--END li_id-->
+		
+		<div class="li_up">{{currency:price}}</div>
+  		<div class="li_qty">
+			{{>quantity}}<br />
+			<small><span class="clickable change_quantity">Change<br />Quantity</span></small>
+		</div>
+		<div class="li_price">{{currency:(price * quantity)}}</div>
+		
+		<div class="clear"></div>
+		
+		<small>
+		<span class="clickable edit_personalization">Edit This Item</span><br />
+		<span class="clickable remove">Remove</span>
+    	</small>
+ 		
+	</div><!--END li_content-->
+	
+</div><!--END li_row-->
+
+</script>
+
+<script id="summary_tmpl" type="text/x-jsrender">
+  <span class="cart_sum_txt">Cart Summary</span><br />
+  SUBTOTAL: {{currency:prod_cost}} <br />
+  {{if prod_credit}}
+    Savings: {{currency:prod_credit}}<br />
+  {{/if}}
+  <small>*Shipping and Sales Tax Calculated at Checkout Time</small>
+</script>
+
+<script id="line_item_total_tmpl" type="text/x-jsrender">
+  {{currency:(price * quantity)}}
+</script>
+
+<script id="line_item_qtotal_tmpl" type="text/x-jsrender">
+  {{:quantity * quantity_units}}
+</script>
+
+
+<script id="shipping_tmpl" type="text/x-jsrender">
+  <tr>
+    <td>
+    <input type="radio" id="shipping-{{>shipping_id}}" name="shipping_id" data-shipping_id="{{>shipping_id}}" />
+    <label for="shipping-{{>shipping_id}}">
+      {{>name}}
+    </label>
+    </td>
+    <td>{{currency:total}}</td>
+  </tr>
+</script>
+
+<script id="promo_tmpl" type="text/x-jsrender">
+  <div class="promo_descrip">
+  <small>PROMO DESCRIPTION:</small><br />
+  	&nbsp;&nbsp;&nbsp;&nbsp;<i>{{>consumer_text}}</i>
+  </div>
+  
+  <div class="promo_savings">
+  <small>Savings:</small>&nbsp;&nbsp;&nbsp;&nbsp;<strong><big>{{currency:value}}</strong></big><br />
+  {{if incomplete}}
+    <span class="ast">You have not completely used this promotion.</span>
+  {{/if}}
+  </div>
+</script>
+
+{% endraw %}
+
+<script type="text/javascript">
+
+$.views.converters({
+  currency: function(value) {
+    return "$ " + value.toFixed(2);
+  },
+  datetime: function(date8601) {
+    // Probably won't work on old browsers:  see https://github.com/csnover/js-iso8601/
+    date = new Date(date8601)
+    return date.format();
+  }
+});
+
+var cart = {};
+
+function display_promo(promo) {
+  if (!promo) {
+    $("#promo_code").val("");
+    $('.promo_row').hide();
+    $('.promo_added').html("");
+  }
+  else {
+    $("#promo_code").val(promo.code);
+    var promo_data = {
+      consumer_text: promo.consumer_text,
+      value: cart.finance.prod_credit,
+      incomplete: cart.finance.promo_incomplete
+    }
+    $('.promo_added').html($('#promo_tmpl').render(promo_data));
+    $('.promo_row').show();
+  }
+  $('.cart_sum_left').html($('#summary_tmpl').render(cart.finance));
+}
+
+function apply_promo(code) {
+  if (!code) {
+    jAlert("Please type your promotion code into the text field and click the APPLY button");
+    return false;
+  }
+  DPAjax(
+    "/e/ajax_cart",
+    {
+      command: 'apply_promo',
+      code: code
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        cart.finance = data.finance;
+        display_promo(data.promo);
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        jError("Network Issue");
+    }
+  );
+}
+
+function remove_promo() {
+  DPAjax(
+    "/e/ajax_cart",
+    {
+      command: 'remove_promo'
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        cart.finance = data.finance;
+        display_promo(null);
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        jError("Network Issue");
+    }
+  );
+}
+
+function navigate(build_access_id, url) {
+  DPAjax(
+    "/e/ajax_session",
+    {
+      command: 'set_build_id',
+      build_access_id: build_access_id
+    },
+    function (data) {
+      if (data.Complete) {
+	jAlert("Your order has already been submitted", "Order Submitted", function() {
+	  var url = "https://{{ SERVER_NAME }}/e/order_complete";
+	  window.location.replace(url);
+	});
+      }
+      document.location.href = url;
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        jError("Network Issue");
+    }
+  );
+}
+
+$(document).ready(function() {
+  DPAjax(
+    "/e/ajax_cart",
+    { command: 'get' },
+    function (data) {
+      if (data.Complete) {
+	jAlert("Your order has already been submitted", "Order Submitted", function() {
+	  var url = "https://{{ SERVER_NAME }}/e/order_complete";
+	  window.location.replace(url);
+	});
+      }
+      cart = data.cart;
+      $('.cart_sum_left').html($('#summary_tmpl').render(cart.finance));
+      $.each(cart.line_items, function (i, line_item) {
+        $("#line_items").before($('#line_item_tmpl').render(line_item));
+      });
+      if (data.promo)
+        display_promo(data.promo);
+      else
+        display_promo();
+      if (data.invalid_promo_message)
+        jAlert(data.invalid_promo_message)
+    },
+    function (data) {
+      if (data.Error)
+        jError(data.Error);
+      else
+        jError("Network Issue");
+    }
+  );
+  $(".nav").button();
+  $('#add_promo').button();	  
+  $(document).on('click', '.remove', function() {
+    var build_access_id = $(this).closest('.li_row').data('build_access_id');
+    jConfirm("Delete this product?", "Delete From Shopping Cart", function (r) {
+      if (r) {
+        DPAjax(
+          "/e/ajax_cart",
+          {
+            command: 'line_item_delete',
+            build_access_id: build_access_id
+          },
+          function (data) {
+            if (data.Error)
+              jError(data.Error);
+            else
+              $('.li_row[data-build_access_id=' + build_access_id + ']').remove();
+              $('.cart_sum_left').html($('#summary_tmpl').render(cart.finance));
+          },
+          function (data) {
+            if (data.Error)
+              jError(data.Error);
+            else
+              jError("Network Issue");
+          }
+        );
+      }
+    });
+  });
+  $(document).on('click', '.edit_personalization', function() {
+    var build_access_id = $(this).closest('.li_row').data('build_access_id');
+    var url = "http://{{ SERVER_NAME }}/e/pb";
+    navigate(build_access_id, url);
+  });
+  $(document).on('click', '.change_quantity', function() {
+    var build_access_id = $(this).closest('.li_row').data('build_access_id');
+    var url = "http://{{ SERVER_NAME }}/e/pq";
+    navigate(build_access_id, url);
+  });
+  $('.continue_shopping').on('click', function() {
+    var url = "http://{{ SERVER_NAME }}/";
+    document.location.href = url;
+  });
+  $('.pay').on('click', function() {
+    if (cart.finance.promo_incomplete) {
+      jConfirm("You have not completely used your promotion.  Continue checkout?", "Promotion Incomplete", function (r) {
+        if (r) {
+          var url = "https://{{ SERVER_NAME }}/e/payment";
+          document.location.href = url;
+        }
+      });
+    }
+    else {
+      var url = "https://{{ SERVER_NAME }}/e/payment";
+      document.location.href = url;
+    }
+  });
+  $('#add_promo').on('click', function() {
+    apply_promo($("#promo_code").val());
+  });
+  $('.remove_promo').on('click', function() {
+    remove_promo();
+  });
+
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+<body>
+<div id="header-pb"><div class="header-c">
+  <div id="logo-pb"><img src="/i/logo-pb.jpg"></div>
+  <div class="prod_title"></div><!--END prod_title-->
+</div><!--END header-c-->
+</div><!--END header-pb-->
+
+
+<div class="cart_sum_hdr">	
+  <div class="cart_sum_left">
+  </div><!--END cart_sum_left-->
+		
+  <div class="header_btns" style="float: right; margin: 35px 25px;">
+    <input type="button" class="nav continue_shopping" value="Continue Shopping" />
+    &nbsp;&nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" class="nav pay" value="Checkout"/>
+  </div><!--END header_btns-->
+</div><!--END cart_sum_hdr-->
+
+<div class="clear" style="clear: both"></div>
+
+<div id="container">     
+<div id="cart_content"> 
+	<div id="line_items"></div><!--END line_items-->
+</div><!--END cart_content-->
+</div><!--END container-->
+
+<div class="promo_row" style="display: none;">
+	<div class="promo_added_hdr">
+          PROMO APPLIED
+          <img class="clickable remove_promo" title="Remove Promo" src="/i/red_x_small.png" style="float: right;">
+	</div><!--END promo_hdr-->
+	<div class="promo_added">
+        </div>
+</div>
+
+<div class="promo_row_enter">
+        <strong>Promotion Code</strong> &nbsp;<input type="text" id="promo_code" name="promo_code">
+        <button id="add_promo" style="font-size: 0.7em;">APPLY CODE</button><br />
+</div>
+
+<div class="cart_sum_hdr">
+  <div class="cart_sum_left">
+  </div><!--END cart_sum_left-->
+
+  <div class="header_btns" style="float: right; margin: 35px 25px;">
+    <input type="button" class="nav continue_shopping" value="Continue Shopping" />
+    &nbsp;&nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" class="nav pay" value="Checkout"/>
+  </div><!--END header_btns-->
+</div><!--END cart_sum_hdr-->
+<br /><br />
+
+{% include '/i/minimal_footer2.html' ignore missing %}
+
+
+</body>
+{% include '/i/tracking.html' ignore missing %}
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

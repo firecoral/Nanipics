@@ -1,0 +1,288 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas Printed By Your own Pro Team at NaniPics. " /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" href="/css/style.css" rel="stylesheet" />
+<link type="text/css" href="/css/product_info.css" rel="stylesheet" />
+<link type="text/css" href="/css/superfish.css" media="screen" rel="stylesheet">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/jstorage.min.js"></script>
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+{% raw %}
+
+<script id="pi_group_tmpl" type="text/x-jsrender">
+{{for pds}}
+  {{if pi_show == false}}
+    {{if product.prices.length > 1}}
+      {{if product.pi_show_icon}}
+        <div class="product_w_icon">
+          <div class="product_select"><input class="product_radio" type="radio" name="product_radio" data-pd_id="{{:pd_id}}" data-index="{{:#parent.parent.parent.index}}" {{if ~selected_pd(pd_id)}}checked{{/if}}/></div>
+	  <div class="product_icon_container"><img class="product_icon" src="/a/{{:icon}}"></div>
+      {{else}}
+        <div class="product_wo_icon">
+          <div class="product_select"><input class="product_radio" type="radio" name="product_radio" data-pd_id="{{:pd_id}}" data-index="{{:#parent.parent.index}}" {{if ~selected_pd(pd_id)}}checked{{/if}}/></div>
+      {{/if}}
+	  <div class="product_name">{{:product.name}}</div>
+	  
+	  <div style="float: right; margin: 1px 0px 0px 5px;">
+	  <span class="price_details info_help clickable"><img src="/i/sort_arrow.jpg"></span>
+	  </div>
+	  	
+	  <div class="product_price">{{price_range:product.price_range}}
+	  
+	  </div>
+	  
+	  </div>
+	  
+      <div class="product_prices">
+		  <div class="pp_qty"><small><strong><u>Quantity</u></strong></small></div>
+		  <div class="pp_price"><small><strong><u>Price Per Card</u></strong></small></div>
+		  <br />
+   		  <div class="clear"></div>
+	  
+	  {{for product.prices}}
+	<div class="pp_line">
+	{{if max_quantity > 0}}
+	<div class="pp_qty">
+	  {{:min_quantity}}
+	</div>
+	{{else}}
+	<div class="pp_qty">
+	  {{:min_quantity}}+
+	</div>
+	{{/if}}
+	<div class="pp_price">
+	 {{price:#data}}
+	</div>
+	
+	</div><!--END pp_line-->
+	  {{/for}}
+	  </div>
+	{{else}}
+      {{if product.pi_show_icon}}
+      <div class="product_w_icon">
+      {{else}}
+      <div class="product_wo_icon">
+      {{/if}}
+	<div class="product_select"><input class="product_radio" type="radio" name="product_radio" data-pd_id="{{:pd_id}}" data-index="{{:#parent.parent.index}}" {{if ~selected_pd(pd_id)}}checked{{/if}}/></div>
+	  <div class="product_name">{{:product.name}}</div>
+	  <div class="product_price">{{price:product.prices[0]}}</div>
+      </div>
+    {{/if}}
+  {{/if}}
+{{/for}}
+</script>
+
+<script id="pi_small" type="text/x-jsrender">
+  <div class="pdetail">
+    <img class="detail_thumb" data-large="{{:large_afile}}" src="/a/{{:small_afile}}">
+  </div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+$.views.converters({
+  currency: function(value) {
+    return "$ " + value.toFixed(2);
+  },
+  price: function(price) {
+    if (price.sale_price > 0) {
+      return "<span class='sale1'>$ " + price.price.toFixed(2) + "</span>" +
+	     "&nbsp;&nbsp;&nbsp;<span class='sale2'>$ " + price.sale_price.toFixed(2) + "</span>";
+    }
+    else {
+      return "$ " + price.price.toFixed(2);
+    }
+  },
+  price_range: function(price_range) {
+    if ('sale_price_min' in price_range) {
+      return "<small><u>Prices As Low As</u></small><br /><span class='sale1'>$" + price_range.price_min.toFixed(2) + "</span>" +
+	     "&nbsp;<span class='sale2'> $" + price_range.sale_price_min.toFixed(2) + "</span>";
+    }
+    else {
+      return "<small><u>Prices As Low As</u></small><br /> $" + price_range.price_min.toFixed(2);
+    }
+  },
+  datetime: function(date8601) {
+    // Probably won't work on old browsers:  see https://github.com/csnover/js-iso8601/
+    date = new Date(date8601)
+    return date.format();
+  }
+});
+
+var pd_id = {{pd_id}};
+var design_group = {{design_group}};
+
+function update_graphics(i) {
+  var pd = design_group.pds[i];
+  $("#info_txt").html(pd.detail_html);
+  if (pd.detail_images[0]) {
+    $("#largeimage").attr('src', '/a/' + pd.detail_images[0].large_afile);
+    $('#smallimages').html($('#pi_small').render(pd.detail_images));
+  }
+}
+
+$(document).ready(function() {
+  pd_id = $.jStorage.get(design_group.ppdg_key);
+  if (!pd_id)
+    pd_id = 0;
+
+  $('button').button();
+  $("#nav2").menu({position: {at: "left bottom"}});
+  // $('.slideshow').cycle({
+  //   fx: 'fade'
+  // });
+
+  $('ul.sf-menu').superfish();
+
+  $(document).on('mouseenter', '.detail_thumb', function() {
+   $("#largeimage").attr('src', '/a/' + $(this).data('large'));
+  });
+  $(document).on('change', '.product_radio', function() {
+   update_graphics($('.product_radio:checked').data('index'));
+  });
+  $(document).on('click', '.price_details', function() {
+   $(this).closest('.product_w_icon').next('.product_prices').toggle("slide", { direction: 'up' });
+  });
+  $('.pb_link').on('click', function() {
+    pd_id = $('.product_radio:checked').data('pd_id');
+    $.jStorage.set(design_group.ppdg_key, pd_id);
+    DPAjax(
+      '/e/ajax_session', {
+	command: 'create_build',
+	pd_id: pd_id
+      },
+      function() {
+	document.location.href = '/e/pb';
+      }
+    );
+    return false;
+  });
+
+  $('#choose_product').html($('#pi_group_tmpl').render(
+    design_group, {
+      selected_pd: function(this_pd_id) {
+	if (pd_id == 0) {
+	  pd_id = this_pd_id;
+          $.jStorage.set(design_group.ppdg_key, pd_id);
+	  return true;
+	}
+	else {
+	  return pd_id == this_pd_id;
+	}
+      }
+    }
+  ));
+
+  $.each(design_group['pds'], function (i, pd) {
+    if (pd.pd_id == pd_id) {
+      update_graphics(i);
+      return false;
+    }
+  });
+  $(window).unload(function() {});
+});
+</script>
+
+</head>
+
+<body>
+{% include '/i/tracking.html' ignore missing %}
+<div id="header"><div class="header-c">
+
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  -->
+	<a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a>
+</div><!--END top_head-->
+
+<div id="logo"><a href="../.." ><img src="/fs/i/logo.jpg"></a></div>
+	<div id="menu">
+	{{ menu_data }} 
+	</div><!--END menu--> 
+</div><!--END header-c--></div><!--END header-->
+
+<!--
+<div id="promo_img">
+	<div class="promo_content">
+	<div class="pi_l">THIS WEEK ONLY!</div>
+    <div class="pi_m">Save 10% On All Cards!</div>
+    <div class="pi_r">OFFER ENDS<br /> ON 10/30!</div>
+    </div><!--END promo_content-->
+<!--
+</div><!--END promo_img-->
+<!--
+<div id="promo_txt">Get FREE SHIPPING for all orders over $25.</div><!--END promo-->
+
+
+<div id="container">
+    
+    <div id="breadcrumbs" style="font-size: 0.9em; color: #666666; margin-top: 10px; display: none;">
+    Home &middot; Cards &middot; Holiday Cards &middot; <strong>{{ ecom_name }}</strong>
+    </div><!--END breadcrumbs-->
+    
+<div id="prod_info">  
+
+  <div id="info_imgs">
+    <div class="pinfo"><img id="largeimage"></div><!--END info_imgs-->
+    
+    <div class="info_line"></div>
+    
+    <strong>Product Details</strong><br />
+    <div id="smallimages"></div>
+    
+    <div class="clear"></div>
+    <div class="info_line"></div>
+     
+     <div id="info_txt">
+     </div><!--END info_txt-->
+    
+    <!--
+    <div class="info_line"></div>
+    [PROMO SPOT?]
+    -->
+    
+       
+  </div><!--END info_imgs-->
+
+  <div id="info_desc">
+  	
+    <!--
+  	<div id="info_promo_1"> PROMO SPOT</div>
+  	-->
+   
+   	<div class="ecom_name"> 
+     {{ ecom_name }}  
+    </div><!--END ecom_name-->
+   
+   
+	<div class="info_sub_title">{{ choose_text }}</div>
+    
+    <div id="choose_product"></div><!--END choose_product-->
+    
+    <div class="personalize">
+    <a href="/e/pb" class="pb_link"><button> Personalize Product Now</button></a>    
+	</div>
+    
+  </div><!--END info_desc-->
+
+</div><!--END prod_info-->
+</div><!--END container-->
+
+{% include '/i/subscribe_footer.html' ignore missing %}
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

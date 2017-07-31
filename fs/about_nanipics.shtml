@@ -1,0 +1,152 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Incredible Offers, Holiday Cards, Greeting Cards, Canvas Wraps, Mounted Photo Prints | NaniPics</title>
+<meta name="description" content="Professional quality Holiday Cards, Greeting Cards, Canvas Wraps, and Mounted Photo Prints." /> 
+<meta name="keywords" content="holiday cards, christmas cards, greeting cards, christmas greeting cards, holiday card, christmas card, xmas card, greet card, new year's cards, photo cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics" />
+
+<link type="image/x-icon" href="/favicon.ico" rel="shortcut icon">
+<link rel="apple-touch-icon-precomposed" sizes="114×114" href="/icons/apple-touch-icon-114x114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72×72" href="/icons/apple-touch-icon-72×72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="/icons/touch-icon-iphone-precomposed.png">
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/fs/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/fs/css/splash.css" />
+<link type="text/css" href="/fs/css/superfish.css" media="screen" rel="stylesheet">
+
+
+<script type="text/javascript" src="<!--#echo var="jquery" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_ui" -->"></script>
+<script type="text/javascript" src="<!--#echo var="jquery_json" -->"></script>
+<script type="text/javascript" src="/js/jquery.cycle.all.latest.js"></script>
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  $('button').button();
+  
+  $('#nav2').menu({position: {at: 'left bottom'}});
+  $('.slideshow').cycle({
+    speed: '500',
+    fx: 'fade'
+  });
+
+  $('ul.sf-menu').superfish();
+	
+  $('#slideshow2').cycle({
+    fx:     'none',
+    speed:  '500',
+    timeout: 0,
+    pager:  '#nav',
+    pagerAnchorBuilder: function(idx, slide) {
+      // return sel string for existing anchor
+      return '#nav li:eq(' + (idx) + ') a';
+    }
+  });
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+
+<body>
+
+<!--#include virtual="/i/tracking.html" --> 
+
+<div id="header"><div class="header-c">
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  --><a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a></div>
+<div id="logo"><a href="/" ><img src="/fs/i/logo.jpg"></a></div>
+<!--#include file="menu.shtml" --> 
+</div><!--END header-c--></div><!--END header-->
+
+
+<div id="container">    
+<div class="clear"></div>
+<br /><br />
+
+
+<div class="about_img_left">
+	<img src="i/about-01.jpg" />
+</div>
+
+<div class="about_text_right">
+<div class="about_h1">Who We Are.</div><br />
+	<div class="about_content">
+	Over the past decade, we have worked exclusively with professional photographers to turn their images into 
+    beautiful (&quot;<strong>Nani</strong>&quot; in Hawaiian) pictures for their clients. <strong>NaniPics</strong> 
+    now use the technologies 
+    and professional treatments developed over the years to help you to extend your images into beautiful 
+    photo memories to enjoy for years to come. <br /><br />
+    </div>
+</div>
+ 
+
+<div class="about_02_img">
+<img src="i/about-02.jpg" />
+</div>
+
+<div class="focus_text">
+<div class="about_h1">Focusing on Simplicity.</div><br />
+	<div class="about_content">
+    We believe in simplicity and use all the technical wonders available to us to make the site powerful &amp; 
+    easy for you to use.  The simple user interface make it easy for you to create marvelous one of a 
+    kind mementos without having to spend hours creating them. Our belief in simplicity 
+    carries all the way through our entire workflow to ensure your purchases are made with   
+    the greatest quality.<br /><br />
+    </div>
+</div>
+
+
+<div class="about_03_img">
+<img src="i/about-03.png" />
+</div>
+
+<div class="quality_text">
+<div class="about_h1">Our View of Quality.</div>
+<br />
+	<div class="about_content">
+	We do our best to ensure each order is done right the very first time.  To this point, we have designed 
+    our system with precision to create the first product and the thousandth one with the same care. On 
+    that rare occasion where you may have concerns on a product delivered, we make sure that you are 
+    responded to immediately and taken care of.<br /><br />
+    </div>
+</div>
+
+<div class="clear"></div><br /><br />
+	
+    <div class="support_text">
+	<div class="about_h1">Support via Email.</div><br />
+	<div class="about_content">
+    XXXXX@XXXXX.com<br />
+	Our primary support service is through email. This allows us to monitor your inquiries throughout the 
+    day regardless the time zone you are from. More importantly, it allows us to research your questions 
+    and provide you with full and correct information the very first time. For the rare occasion where we 
+    do need to contact you with voice, we will take the action and reach you via phone.
+    </div>
+	</div>
+    
+    <div class="satisfaction_text">
+	<div class="about_h1">Satisfaction Guaranteed.</div><br />
+    <div class="about_content">
+	We are proud of the quality of our products and believe your will love and enjoy them for years to come.  
+    However, if you are not satisfied with the products you have received, we will be happy to replace them 
+    or refund your money upon return. Please contact us within 30 days of receipt of your orders.
+    </div>
+	</div>
+
+
+</div><!--END container-->
+
+
+<!--#include file="subscribe_footer.shtml" --> 
+
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

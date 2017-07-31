@@ -1,0 +1,198 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas Printed By Your own Pro Team at NaniPics. " /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" href="/css/style.css" rel="stylesheet" />
+<link type="text/css" href="/css/superfish.css" media="screen" rel="stylesheet">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/date.format.js"></script>
+
+<script type="text/javascript" src="/js/hoverIntent.js"></script>
+<script type="text/javascript" src="/js/superfish.js"></script>
+
+
+{% raw %}
+
+
+<script id="instr_tmpl" type="text/x-jsrender">
+
+	To check on the status of your order, please enter:<br />
+	
+	        <ol style="margin-left: 20px;">
+            <li>Order Number</li>
+            <li>Last Name in the shipping address</li>
+            <div align="center"><strong>OR</strong><br />The shipping address Zip Code.</div>
+            </ol>
+            <br />
+            
+	Then click the <strong>&quot;Check Status&quot;</strong>button.
+
+</script>
+
+<script id="status_tmpl" type="text/x-jsrender">
+  {{if cart_status_id == 1}}
+    This Order was never paid for.
+  {{else cart_status_id == 2}}
+    This Order is being processed.
+  {{else cart_status_id == 3}}
+    This Order is being processed.
+  {{else cart_status_id == 4}}
+    This Order is being processed.
+  {{else cart_status_id == 5}}
+    This order was completed on  {{>ship_date}}.
+  {{else cart_status_id == 6}}
+    This order has been cancelled.
+  {{/if}}
+
+  {{for shipments}}
+    Shipment: {{datetime:ship_date}}<br />
+    {{>vendor}} {{>service}}
+    {{if url}}
+      <a href="{{:url}}">{{>tracking}}</a>
+    {{else}}
+      {{>tracking}}
+    {{/if}}
+    <br />
+    {{for products}}
+      {{>quantity}} {{>product_name}} {{>design_name}}<br />
+    {{/for}}
+  {{/for}}
+  <br />
+
+</script>
+
+{% endraw %}
+
+<script type="text/javascript">
+
+$.views.converters({
+  currency: function(value) {
+    if (value == null)
+      return (" -- ");
+    return "$ " + value.toFixed(2);
+  },
+  datetime: function(date8601) {
+    // Probably won't work on old browsers:  see https://github.com/csnover/js-iso8601/
+    date = new Date(date8601)
+    return date.format();
+  }
+});
+
+$(document).ready(function() {
+  $('button').button();  
+  $('#nav2').menu({position: {at: 'left bottom'}});
+  $('ul.sf-menu').superfish();
+  $(window).unload(function() {});
+
+  $('#_os_message').html($('#instr_tmpl').render());
+  $(".check_status").button();
+  $(".check_status").on('click', function() {
+    var args = {
+      cart_id: $("#cart_id").val(),
+      last_name: $("#last_name").val(),
+      zip_code: $("#zip_code").val()
+    };
+    if (!args.cart_id || !(args.last_name || args.zip_code)) {
+      $('#_os_message').html("Please provide an order number and either the zipcode or last name from the order's shipping address.");
+      return;
+    }
+    DPAjax(
+      '/e/ajax_order_status',
+      args,
+      function (data) {
+        if (data.IncompleteData) {
+          $('#_os_message').html("Please provide an order number and either the zipcode or last name from the order's shipping address.");
+        }
+        else {
+          // show the results
+          $('#_os_message').html($('#status_tmpl').render(data));
+        }
+      },
+      function (data) {
+        if (data.Error) {
+          $('#_os_message').html(data.Error);
+        }
+        else
+          $('#_os_message').html("Network Issue");
+      }
+    );
+  });
+});
+
+</script>
+
+</head>
+
+<body>
+
+{% include '/i/tracking.html' ignore missing %}
+
+<div id="header"><div class="header-c">
+
+<div id="top_head"><!--Sign In  &middot;  My Account  &middot;  
+	<a href="/e/shopping_cart"><img src="/i/shopping-cart-icon.png"> Shopping Cart</a>
+    -->&nbsp;
+</div><!--END top_head-->
+
+<div id="logo"><a href="../.." ><img src="/fs/i/logo.jpg"></a></div>
+	<div id="menu">
+	{{ menu_data }} 
+	</div><!--END menu--> 
+</div><!--END header-c--></div><!--END header-->
+
+
+<div id="container">    
+<div class="clear"></div>
+
+
+<div  class="order_h1">Check on the Status of Your Order</div><!--END order_h1-->
+
+<div class="order_container">
+
+
+<div class="order_enter">
+      Enter Your Order #:<br />
+      <input type="text" id="cart_id" size="20" class="order_input">
+      <br />
+      
+      Enter Last Name in Shipping Address: <br />
+      <input type="text" id="last_name" size="25" class="order_input">
+      <br />
+      
+      Or ZIP Code:<br />
+      <input type="text" id="zip_code" size="10" class="order_input">
+      
+      <br />
+      <div align="center">
+      <button class="check_status">Check Status</button><br />
+      </div>
+</div><!--END order_enter-->
+
+<div class="order_message">
+	<div id="_os_message">
+	
+	</div><!--END _os_message-->
+</div><!--END order_message-->
+
+</div><!--END order_container-->
+           
+</div><!--END container-->
+
+{% include '/i/subscribe_footer.html' ignore missing %}
+
+
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

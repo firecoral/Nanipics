@@ -1,0 +1,430 @@
+
+<!DOCTYPE html >
+<html lang="en">
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Birth Announcement, Photo Cards, Photo Canvas, Photo Prints, Wall Mounted Photo Prints, Photo Gifts | NaniPics</title>
+<meta name="description" content="Personalize Photo Cards, Photo Books, Photo Prints and Photo Canvas Printed By Your own Pro Team at NaniPics. " /> 
+<meta name="keywords" content="personalized photo cards, photo cards, birth announcements, holiday cards, christmas cards, greeting cards, christmas greeting cards, christmas card, new year's cards, personalized photo greeting card, press cards, home decor, canvas gallery wrap, mounted prints, metal prints, bamboo mounted prints, Standout mounted prints, wall clings, wall decal prints, photo coasters, photo book, photo booklet, large poster prints, Lustre prints, NaniPics.com" />
+
+<link type="text/css" href="/css/nani01/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/css/fileupload.css" />
+<link type="text/css" rel="stylesheet" href="/css/jquery.Jcrop.min.css" />
+<link type="text/css" rel="stylesheet" href="/css/style.css" />
+<link type="text/css" rel="stylesheet" href="/css/product_build.css" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/fu/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/js/fu/jquery.fileupload.js"></script>
+<script type="text/javascript" src="/js/jquery.Jcrop.js"></script>
+<script type="text/javascript" src="/js/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="/js/BuildManage.js"></script>
+<script type="text/javascript" src="/js/ImageManage.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/FileUpload.js"></script>
+<script type="text/javascript" src="/js/ProductBuild.js"></script>
+<script type="text/javascript" src="/js/OrientationSelect.js"></script>
+<script type="text/javascript" src="/js/ImageSelect.js"></script>
+<script type="text/javascript" src="/js/PageSelect.js"></script>
+<script type="text/javascript" src="/js/LayoutSelect.js"></script>
+<script type="text/javascript" src="/js/PageBuild.js"></script>
+<script type="text/javascript" src="/js/ImageEdit.js"></script>
+<script type="text/javascript" src="/js/TextEdit.js"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+
+{% raw %}
+
+<script id="image_select_tmpl" type="text/x-jsrender">
+<div id="ip_canvas_container">
+
+<div id="is_imgupload"><img src="/i/img-upload.png"><br />Add Photos</div>
+
+<div id="is_img_container" style="width: 867px; height: 150px; float: left; overflow-y: hidden; overflow-x: auto;">
+<div id="is_img_dynamic">
+{{for images}}
+  <div
+    class="is_img"
+    data-access_id="{{:access_id}}"
+    data-ar="{{:ar}}"
+    data-col_afile="{{:col_afile}}"
+    data-baw_afile="{{:baw_afile}}"
+    data-sep_afile="{{:sep_afile}}"
+  >
+  {{if ar >= 1}}
+    <img src="/a/{{:is_afile}}" style="width: {{:100 * ar}}%; height: 100%; left: {{:-50 * (ar - 1)}}%; top: 0%;" />
+  {{else}}
+    <img src="/a/{{:is_afile}}" style="width: 100%; height: {{:100 / ar}}%; left: 0%; top: {{:-50 / ar}}%;" />
+  {{/if}}
+  </div><!--END is_img-->
+{{/for}}
+</div><!--END is_img_dynamic-->
+</div><!--END is_img_container-->
+
+</div><!--END is_canvas_contaier-->
+</script>
+
+<script id="orientation_select_tmpl" type="text/x-jsrender">
+{{for designs}}
+
+<input type="radio" data-i="{{:#index}}" class="os_radio" name="os_radio" value="{{:orientation}}" {{if is_current}}checked{{/if}}> {{:orientation}}
+{{/for}}
+</script>
+
+<script id="page_select_tmpl" type="text/x-jsrender">
+{{if is_current}}
+<div class="ps_page ps_page_cur" data-i="{{:#parent.index}}">
+{{else}}
+<div class="ps_page ps_page_notcur" data-i="{{:#parent.index}}">
+{{/if}}
+{{if icon}}
+  <img src="/a/{{:icon}}"><br />
+{{/if}}
+{{if name}}
+  <div class="ps_txt">{{:name}}</div>
+{{else}}
+  <div class="ps_txt">Page {{:seq}}</div>
+{{/if}}
+</div>
+</script>
+
+
+<script id="layout_select_tmpl" type="text/x-jsrender">
+<div class="ls_icon {{if is_current}}ls_icon_selected{{else}}ls_icon_unselected{{/if}}" data-i="{{:#index}}">
+  <img src="/a/{{:icon}}" />
+</div>
+</script>
+
+
+<script id="page_build_tmpl" type="text/x-jsrender">
+<div class="pb_build" style="width: {{:page_width}}px; height: {{:page_height}}px;">
+{{for islots}}
+  <div class="pb_slot_container pb_full_canvas" data-seq="{{:seq}}">
+  {{include tmpl="#page_build_img_contain_tmpl" /}}
+  {{include tmpl="#page_build_islot_tmpl" /}}
+  </div>
+{{/for}}
+{{if overlay_image}}
+  <div class="pb_full_canvas">
+    <img src="/a/{{:overlay_image}}" style="width: 100%; height: 100%;">
+  </div>
+{{/if}}
+{{if blockout_image}}
+  <div class="pb_full_canvas">
+    <img src="/a/{{:blockout_image}}" style="width: 100%; height: 100%;">
+  </div>
+{{/if}}
+{{if text_key}}
+  <div
+    id="pb_text_overlay"
+    class="pb_full_canvas"
+    style="background-image: url('/e/t?{{:text_key}}');">
+  </div>
+{{/if}}
+{{for islots}}
+  <div
+  {{if bimage.access_id}}
+    class="pb_iuitarg pb_iuitarg_full"
+  {{else}}
+    class="pb_iuitarg pb_iuitarg_empty"
+  {{/if}}
+    data-seq="{{:bimage.seq}}"
+    style="
+      left:   {{:x0}}px;
+      top:    {{:y0}}px;
+      width:  {{:x1 - x0}}px;
+      height: {{:y1 - y0}}px;">
+  {{if bimage.access_id}}
+  </div> 
+  {{else}}
+    <div class="pb_dragtext_magic" />
+    <div class="pb_dragtext_canvas">
+    {{if #parent.parent.parent.data.num_images > 0}}
+      <span>Drag here to fill</span>
+    {{else}}
+      <span>Click here to add photos</span>
+    {{/if}}
+    </div>
+  </div> 
+  {{/if}}
+{{/for}}
+{{for tslots}}
+  <div
+    class="
+      pb_tuitarg
+      {{if seq == #parent.parent.data.cur_tseq}}pb_tuitarg_current{{/if}}
+    "
+    data-seq="{{:seq}}"
+    style="
+      left:   {{:x0}}px;
+      top:    {{:y0}}px;
+      width:  {{:x1 - x0}}px;
+      height: {{:y1 - y0}}px;">
+  </div>
+{{/for}}
+</div>
+</script>
+
+<script id="page_build_img_contain_tmpl" type="text/x-jsrender">
+{{if bimage.access_id}}
+<div
+  class="pb_img_contain"
+  data-i="{{:#index}}"
+  style="
+    left:   {{:x1 - bimage.x1 + bimage.x0}}px;
+    top:    {{:y1 - bimage.y1 + bimage.y0}}px;
+    width:  {{:2 * (bimage.x1 - bimage.x0) - (x1 - x0)}}px;
+    height: {{:2 * (bimage.y1 - bimage.y0) - (y1 - y0)}}px;">
+</div>
+{{/if}}
+</script>
+
+<script id="page_build_islot_tmpl" type="text/x-jsrender">
+<div
+  class="pb_islot"
+  data-i="{{:#index}}"
+  style="
+    left:   {{:x0}}px;
+    top:    {{:y0}}px;
+    width:  {{:x1 - x0}}px;
+    height: {{:y1 - y0}}px;">
+  {{if bimage.access_id}}
+  <img
+    class="pb_img"
+    data-i="{{:#index}}"
+    src="/a/{{:~bimage_afile(bimage)}}"
+    style="
+      left:   {{:bimage.x0 - x0}}px;
+      top:    {{:bimage.y0 - y0}}px;
+      width:  {{:bimage.x1 - bimage.x0}}px;
+      height: {{:bimage.y1 - bimage.y0)}}px;">
+  {{/if}}
+</div>
+</script>
+
+<script id="image_edit_tmpl" type="text/x-jsrender">
+<div class="ie_header">
+  <div class="ie_h1">Edit Image</div>
+  <span style="font-size: 0.65em;">Drag the corners of the image to crop or drag the center of the image to reposition.</span>
+</div><!--END ie_header-->
+
+<div id="ie_img_container">
+  <div
+    id="ie_img_center"
+    style="
+      position: relative;
+      left: {{:img_place.left}};
+      top: {{:img_place.top}};
+      width: {{:img_place.width}};
+      height: {{:img_place.height}};">
+    <img
+      id="ie_img"
+      src="/a/{{:bimage_afile}}"
+      style="display: none;"
+    >
+  </div>
+</div>
+<div id="ie_tints">
+  <div id="ie_col" class="ie_elem ie_tint" data-tint_id="1" style="margin-left: 38px;"><img src="/i/edit-color.png"></div>
+  <div id="ie_baw" class="ie_elem ie_tint" data-tint_id="2"><img src="/i/edit-bw.png"></div>
+  <div id="ie_sep" class="ie_elem ie_tint" data-tint_id="3"><img src="/i/edit-sepia.png"></div>
+  
+  <div class="ie_rotate_container">
+	  	<div class="ie_elem ie_rotate" data-rotation="90"><img src="/i/edit-rotate-left.jpg"></div>
+  		<div class="ie_elem ie_rotate" data-rotation="-90"><img src="/i/edit-rotate-right.jpg"></div>
+  </div><!--END ie_rotate_container-->
+  
+</div>
+
+<div class="ie_close_container">
+	<button id="ie_close">Close</div>
+</div><!--END ie_close_container-->
+
+</script>
+
+
+<script id="text_edit_tmpl" type="text/x-jsrender">
+<div id="te_close"><img src="/i/close.png"></div>
+<div class="te_h1">Edit Text</div>
+
+{{if ttype == 1}}
+<div class="te_popup_type1">
+  {{for tslots}}
+  <div class="te_text_container">
+  {{:name}}<br />
+    {{if ami == 0}}
+    <input type="text" class="te_text te_text_single" data-seq="{{:seq}}" maxlength={{:mc}} size={{:mc > 20 ? 20 : mc}} value="{{:content}}" {{if ph}}placeholder="{{:ph}}"{{/if}}/>
+    {{else}}
+    <textarea class="te_text te_text_multi_type1" data-seq="{{:seq}}" maxlength={{:mc}} {{if ph}}placeholder="{{:ph}}"{{/if}}>{{:btext.content}}</textarea>
+    {{/if}}
+  </div>
+  {{/for}}
+</div>
+{{else}}
+<div class="te_popup_type2">
+  {{for tslots}}
+    {{if seq == #parent.parent.data.cur_tseq}}
+  <div class="te_type2_controls">
+      {{if fonts.length > 0}}
+    <div class="te_fonts">
+      <select class="te_fonts_select">
+        {{for fonts}}
+	<option value="{{:font_id}}" {{if font_id == #parent.parent.data.btext.font_id}}selected="selected"{{/if}}>{{:name}}</option>
+        {{/for}}
+      </select>
+    </div>
+      {{/if}}
+      {{if fontsizes.length > 0}}
+    <div class="te_fontsizes">
+      <select class="te_fontsizes_select">
+        {{for fontsizes}}
+	<option value="{{:fontsize_id}}" {{if fontsize_id == #parent.parent.data.btext.fontsize_id}}selected="selected"{{/if}}>{{:name}}</option>
+        {{/for}}
+      </select>
+    </div>
+      {{/if}}
+      {{if gravities.length > 0}}
+    <div class="te_gravities">
+        {{for gravities}}
+      <div data-i={{:#index}} data-gravity_id="{{:gravity_id}}" class="te_gravity {{if gravity_id == #parent.parent.data.btext.gravity_id}}te_gravity_cur{{else}}te_gravity_notcur{{/if}}">
+	<img src="/a/{{:image_afile}}">
+      </div>
+        {{/for}}
+    </div>
+      {{/if}}
+  </div>
+  <div class="te_text_container">
+    {{:name}}<br />
+      {{if ami == 0}}
+    <input type="text" class="te_text te_text_single" data-seq="{{:#parent.parent.data.seq}}" maxlength={{:mc}} size={{:mc > 20 ? 20 : mc}} value="{{:btext.content}}" {{if ph}}placeholder="{{:ph}}"{{/if}}/>
+      {{else}}
+    <textarea class="te_text te_text_multi_type2" data-seq="{{:#parent.parent.data.seq}}" maxlength="{{:mc}}" {{if ph}}placeholder="{{:ph}}"{{/if}}>{{:btext.content}}</textarea>
+      {{/if}}
+  </div>
+    {{/if}}
+  {{/for}}
+</div>
+{{/if}}
+</script>
+
+<script id="prod_title_tmpl" type="text/x-jsrender">
+  Personalize
+  {{>product_name}}
+  {{if design_name}}
+  ({{>design_name}})
+  {{/if}}
+
+</script>
+
+{% endraw %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $('button').button();
+});
+
+$(document).ready(function() {
+  DPAjax(
+    '/e/ajax_session', {
+      command: 'get_product',
+      include_build: 1,
+      include_plgs: 1,
+      include_pds: 1,
+      include_images: 1,
+      bounding_width: 790,
+      bounding_height: parseInt($('#page_build_container').height())
+    },
+    function (data) {
+      $(document).BuildManage({
+	build: data.build
+      });
+      $(document).ImageManage({
+	images: data.images,
+	image_size: {{image_size}}
+      });
+      $(document).ProductBuild({
+        product: data.product,
+	layout_groups: data.plgs,
+	designs: data.pds
+      });
+      $(document).ProductBuild.draw();
+    }
+  );
+  $(window).unload(function() {});
+});
+
+</script>
+
+
+
+</head>
+
+<body>
+{% include '/i/tracking.html' ignore missing %}
+<div id="header-pb"><div class="header-c">
+  <div id="logo-pb"><img src="/i/logo-pb.jpg"></div>
+  <div class="prod_title">
+       	
+    <!--&nbsp;&nbsp;<span class="info_help"> How to Personalize <img src="/i/i.png"></span>-->
+  </div><!--END prod_title-->
+
+	<div class="header_btn">
+  	<button id="submit_product">Submit</button>
+	</div>
+    
+</div><!--END header-c-->
+</div><!--END header-->
+
+<div class="clear"></div>
+
+<div id="pb_container"> 
+  <div id="prod_build">
+    <div id="pc_container">
+      <div id="pc_canvas"></div><!--END pc_canvas-->
+    </div><!--END pc_container-->
+    <div id="pc_show_layouts"><img src="/i/is-layouts-active.png"></div>
+
+    
+    <div id="build" class="build_multi_page">
+      <div id="os_canvas">
+      </div><!--END os_canvas-->
+
+      <div id="page_build_container">
+      		<div id="page_build" class="page_build"></div>
+      </div><!--END page_build_container-->
+    </div><!--END build-->
+
+    <div class="pb_card_nav">
+    	<div class="pb_card_cont">
+    	<div class="pb_card_nav_cont"><div class="pb_card_nav_l"><img src="/i/card_nav_arrow_l.png"></div></div>
+        <div class="pb_card_nav_txt"></div>
+        <div class="pb_card_nav_cont"><div class="pb_card_nav_r"><img src="/i/card_nav_arrow_r.png"></div></div>
+        </div>
+    </div>
+    
+    <div id="ips_mode">
+      <div id="ips_show_is"></div>
+      <div id="ips_show_ps"></div>
+    </div><!--END ips_mode-->
+    <div id="ips_canvas">
+    </div><!--END ips-->
+<br /><br />
+
+  </div><!--END prod_build-->
+
+
+    
+</div><!--END container-->
+{% include '/i/minimal_footer.html' ignore missing %}
+
+<div class="pb_footer">&nbsp;</div> 
+
+<div id="te_popup" style="display: none;"></div>
+<div id="ie_popup" style="display: none;"></div>
+
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

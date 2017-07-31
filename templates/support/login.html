@@ -1,0 +1,72 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/login.html#10 $ --->
+<head>
+<title>Support Log In</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link rel=stylesheet type="text/css" href="/css/support.css">
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+  $("#support_name").focus();
+  $("#support_login").on('click', function () {
+    DPAjax(
+      "/s/ajax",
+      {
+	command: 'login',
+	name: $('#support_name').val(),
+	password: $('#support_password').val()
+      },
+      function (data) {
+        document.body.style.cursor = 'auto';
+        window.location.replace('/s/home');
+        return false;
+      },
+      function (data) {
+        alert("Error: " + data.Error);
+      }
+    );
+    return false;
+  });
+  $(window).unload(function() {});
+});
+
+</script>
+
+</head>
+<body>
+
+<div class="logo-header">SUPPORT<img src="/i/support/logo.png" class="logo"></div>
+
+<div class="login-box">
+<form accept-charset="utf-8">
+	<div class="headline">Login</div>
+	<table cellpadding="5">
+    <tr>
+    <td align="right" width="100">Name:</td>
+    <td><input type="text" id="support_name" size="20"></td>
+    </tr>
+    
+    <tr>
+    <td align="right">Password:</td>
+    <td><input type="password" id="support_password" size="20"></td>
+    </tr>
+    
+    <tr>
+    <td>&nbsp;</td>
+    <td><button id="support_login" style="width: 100px; height: 25px; font-weight: bold; font-size: 0.8em;">Login</button><br /></td>
+    </tr>
+    
+    </table>
+</form>
+</div><!--END login-box-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>

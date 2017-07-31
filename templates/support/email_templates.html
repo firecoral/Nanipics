@@ -1,0 +1,304 @@
+<!DOCTYPE html >
+<html lang="en">
+<!--- $Header: //depot/cs/templates/support/email_templates.html#12 $ --->
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<title>Manage Email Templates</title>
+
+<link type="text/css" href="{{ jquery_ui_css }}" rel="stylesheet" />
+<link type="text/css" href="/css/support.css" rel="stylesheet" />
+
+<script type="text/javascript" src="{{ jquery }}"></script>
+<script type="text/javascript" src="{{ jquery_ui }}"></script>
+<script type="text/javascript" src="{{ jquery_json }}"></script>
+<script type="text/javascript" src="/js/jsrender.js"></script>
+<script type="text/javascript" src="/js/Dialogs.js"></script>
+<script type="text/javascript" src="/js/Utility.js"></script>
+
+{% raw %}
+<script id="email_template_tmpl" type="text/x-jsrender">
+  <div id="email_template-{{:email_template_id}}" data-email_template_id="{{:email_template_id}}" style="display: table-row; text-align:left;">
+    <div style="display: table-cell; width: 20px; padding: 5px 0px;">&nbsp;&nbsp;{{:email_template_id}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{:name}}</div>
+    <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;{{:template_key}}</div>
+    <div class="edit clickable" style="display: table-cell; text-align:center; width: 35px;"><small>edit</small></div>
+    <div style="display: table-cell; text-align:center; width: 30px;"><img class="delete" title="Delete Template" src="/i/red_x_small.png"></div>
+  </div>
+</script>
+{% endraw %}
+
+<script type="text/javascript">
+
+var email_templates = new Object();
+
+function email_template_update(args) {
+  args.command = 'edit';
+  DPAjax(
+    "/s/ajax_email",
+    args,
+    function (data) {
+      email_template_id = data.email_template.email_template_id;
+      email_templates[email_template_id] = data.email_template;
+      $("#email_template-" + email_template_id).replaceWith($('#email_template_tmpl').render(data.email_template));
+      document.body.style.cursor = 'auto';
+    }
+  );
+};
+
+function email_template_add() {
+  args = {};
+  args.command = 'add';
+  DPAjax(
+    "/s/ajax_email",
+    args,
+    function (data) {
+      email_templates[data.email_template.email_template_id] = data.email_template;
+      $("#email_template_list").append($('#email_template_tmpl').render(data.email_template));
+      document.body.style.cursor = 'auto';
+    }
+  );
+  return;
+};
+
+function email_template_delete(email_template_id) {
+  var message = "Do you really want to delete this email template?  It cannot be undone.";
+  jConfirm(message, "Delete Learn More", function (r) {
+    if (r) {
+      var args = {
+	email_template_id : email_template_id,
+	command : 'delete'
+      };
+      DPAjax(
+        "/s/ajax_email",
+	args,
+	function (data) {
+	  $('#email_template-' + email_template_id).remove();
+	  delete email_templates[email_template_id];
+	  document.body.style.cursor = 'auto';
+	}
+      );
+    }
+  });
+};
+
+function dialog_submit(dialog) {
+  var et_name = $('#et_name').val();
+  if (!et_name) {
+    jError("Error: Please provide a name for this email template.");
+    return;
+  }
+  var template_key = $('#et_template_key').val();
+  if (!template_key) {
+    jError("Error: Please provide a key for this email template.");
+    return;
+  }
+  var email_template_id = $("#dialog-form").data('email_template_id');
+  var args = {
+    email_template_id: email_template_id,
+    name: et_name,
+    template_key: template_key,
+    subject: $('#et_subject').val(),
+    cc: $('#et_cc').val(),
+    bcc: $('#et_bcc').val(),
+    text_template: $('#et_text_template').val(),
+    html_template: $('#et_html_template').val()
+  };
+  email_template_update(args);
+  $(dialog).dialog("close");
+};
+
+function dialog_test(subject, data, text_template, html_template) {
+  var args = {
+    subject : subject,
+    data: data,
+    text_template : text_template,
+    html_template : html_template,
+    command : 'test'
+  };
+  DPAjax(
+    "/s/ajax_email",
+    args,
+    function (data) {
+      jAlert(data.complete);
+    }
+  );
+};
+
+$(document).ready( function() {
+  $("#done").button();
+  $("#email_template_add").button();
+  $("#email_template_add").click(function(e) {
+    email_template_add();
+  });
+
+  $(document).on('click', ".edit", function() {
+    var email_template_id = $(this).parent('div').attr('data-email_template_id');
+    var email_template = email_templates[email_template_id];
+    $('#et_name').val(email_template.name);
+    $('#et_template_key').val(email_template.template_key);
+    $('#et_subject').val(email_template.subject);
+    $('#et_cc').val(email_template.cc);
+    $('#et_bcc').val(email_template.bcc);
+    $('#et_text_template').val(email_template.text_template);
+    $('#et_html_template').val(email_template.html_template);
+    $("#dialog-form").data('email_template_id', email_template_id);
+    $("#dialog-form").dialog("open");
+  });
+
+  $(document).on('click', ".delete", function() {
+    var email_template_id = $(this).parent('div').parent('div').attr('data-email_template_id');
+    email_template_delete(email_template_id);
+  });
+
+  $(document).on('click', '#test_btn', function() {
+    $("#test-dialog-form").dialog("open");
+  });
+
+  $("#dialog-form").dialog({
+			autoOpen: false,
+			height: 'auto',
+			width: 1000,
+			modal: true,
+			buttons: {
+				Save: function() {
+				  dialog_submit(this);
+				},
+				Cancel: function() {
+                                  $(this).dialog("close");
+				}
+			},
+			open: function() {
+			  $('#dialog-form ~ .ui-dialog-buttonpane').prepend('<div id="test_bs" class="ui-dialog-buttonset" style="float: left;"><button id="test_btn" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="button">Test</button></div>');
+			  $('#test_btn').button();
+                          $('#test_data').val("{\n  'from_email': 'XXXXX@XXXXX.com',\n  'to_email': 'XXXXX@XXXXX.com'\n}");
+			},
+			close: function() {
+			  $('#test_bs').remove();
+			}
+  });
+
+  $("#test-dialog-form").dialog({
+			autoOpen: false,
+			height: 'auto',
+			width: 400,
+			modal: true,
+			buttons: {
+				Test: function() {
+                                  var subject = $('#et_subject').val();
+                                  var text_template = $('#et_text_template').val();
+                                  var html_template = $('#et_html_template').val();
+                                  var data = $('#test_data').val();
+                                  if (!subject) {
+                                    jAlert("Template requires a subject");
+                                    return;
+                                  }
+                                  if (!text_template) {
+                                    jAlert("Template requires a text template");
+                                    return;
+                                  }
+                                  dialog_test(subject, data, text_template, html_template);
+				},
+				Cancel: function() {
+				  $(this).dialog("close");
+				}
+			}
+  });
+
+  DPAjax(
+    "/s/ajax_email",
+    {
+      command: 'get'
+    },
+    function (data) {
+      $.each(data.email_templates, function (i, email_template) {
+        email_templates[email_template.email_template_id] = email_template;
+        $("#email_template_list").append($('#email_template_tmpl').render(email_template));
+      });
+      document.body.style.cursor = 'auto';
+    },
+    function (data) {
+      jError("Error: " + data.Error);
+      document.body.style.cursor = 'auto';
+    }
+  );
+  $(window).unload(function() {});
+});
+
+
+</script>
+</head>
+<body>
+
+<div class="logo-header">
+	<div class="support">SUPPORT</div>
+	<img src="/i/support/logo.png" class="logo">
+</div><!--end logo-header-->
+
+<div class="content">
+
+<div class="content-header">
+	<div class="content-header-h1">Manage Email Templates</div>
+    <div class="content-header-btn"><input type="button" class='crop_menu_btn' id="done" value="Back" onClick="history.back();return false;" /></div>
+</div>
+
+<div align="center"><input type="button" id="email_template_add" value="New Email Template"/></div><br />
+          
+      <table width="875" border="0" cellspacing="0" cellpadding="3" style="text-align:left;" align="center">
+        <tr>
+          <td style="border:1px dotted #dcdcdd;padding:10px;">			    	
+            <div class="ui-widget-header">
+              <div style="display: table-row; text-align:left;">			
+                  <div style="display: table-cell; width: 20px; padding: 5px 0px;">&nbsp;</div>
+                  <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Name</div>
+                  <div style="display: table-cell; width: 250px; padding: 5px 0px;">&nbsp;&nbsp;Key</div>
+                  <div style="display: table-cell; text-align:center; width: 35px;"></div>
+                <div style="display: table-cell; text-align:center; width: 30px;"></div>
+              </div>
+            </div>
+            <div id="email_template_list" class="ui-widget-content"></div>
+          </td>
+        </tr>
+      </table>
+
+
+<style>
+#et_data, #et_text_template, #et_html_template, #test_data { width: 98%; height: 35em; }
+</style>
+<div id="dialog-form" title="Edit Email Template" style="display: none;">
+  <form id="email_template_dialog">
+    <div class="et_label"><label for="et_name">Name:</label></div>
+    <input type="text" name="et_name" id="et_name" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <div class="et_label"><label for="et_template_key">Key:</label></div>
+    <input type="text" name="et_template_key" id="et_template_key" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="et_subject">Subject:</label>
+    <input type="text" name="et_subject" id="et_subject" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="et_cc">CC:</label>
+    <input type="text" name="et_cc" id="et_cc" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <label for="et_bcc">BCC:</label>
+    <input type="text" name="et_bcc" id="et_bcc" size="50" value="" class="text ui-widget-content ui-corner-all" /><br /><br />
+    <div class="et_label"><label for="et_text_template">Text Template:</label></div>
+    <textarea id="et_text_template" class="text ui-widget-content ui-corner-all" />
+    </textarea><br />
+    <div class="et_label"><label for="et_html_template">HTML Template:</label></div>
+    <textarea id="et_html_template" class="text ui-widget-content ui-corner-all" />
+    </textarea><br />
+  </form>
+</div>
+
+<div id="test-dialog-form" title="Test Data" style="display: none;">
+  <p>The following is a python dictionary containing all the variables
+  used by the templates for this email.  "from_email" and "to_email"
+  are required.<br />
+  <form id="email_test_dialog">
+    <div class="et_label"><label for="et_text_template">Text Template:</label></div>
+    <textarea id="test_data" class="text ui-widget-content ui-corner-all" />
+    </textarea><br />
+  </form>
+</div>
+
+</div><!--end content-->
+</body>
+<!-- {{ SERVER_ADDR }}({{ pid }}):{{ SERVER_PORT }} -->
+</html>
